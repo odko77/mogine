@@ -1,5 +1,6 @@
 import mqtt from 'mqtt';
 import colors from 'cli-color';
+import { processMqttPayload } from '../services/tracker.js';
 
 const mqttPath = '/mqtt';
 const tracker4GTopic = "ondotracks/mqtt";
@@ -39,16 +40,9 @@ export const initMqtt = () => {
   });
 
   mqttClient.on('message', async function (topic, message) {
-    console.log("> topic", topic);
-    console.log("> message", message.toString());
-
     if (topic === tracker4GTopic) {
-      try {
-        const jsonMessage = JSON.parse(message.toString());
-        console.log("json message", jsonMessage);
-      } catch (err) {
-        console.log("mqtt parse error:", err);
-      }
+      const jsonMessage = JSON.parse(message.toString());
+      await processMqttPayload(jsonMessage, message);
     }
   });
 

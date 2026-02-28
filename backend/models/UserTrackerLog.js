@@ -21,10 +21,19 @@ const userTrackerLogSchema = new mongoose.Schema({
     }
   },
 
-  speed: { type: Number, default: 0 },
-  received_date: { type: Date, default: Date.now, index: true },
-  battery: { type: Number, default: 0 },
-  raw_data: String
+  // MQTT дата бүгд багана
+  imei: { type: String, index: true },
+  lat: Number,
+  lon: Number,
+  tst: Number,
+  alt: Number,
+  vel: { type: Number, default: 0 },
+  vbat: Number,
+  vbat_v: Number,
+  temp: Number,
+  batt: { type: Number, default: 0 },
+
+  received_date: { type: Date, default: Date.now, index: true }
 }, {
   timestamps: true
 });

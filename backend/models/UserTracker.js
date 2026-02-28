@@ -22,37 +22,31 @@ const userTrackerSchema = new mongoose.Schema({
     index: true
   },
 
-  created_date: {
-    type: Date,
-    default: Date.now
-  },
-
-  // 🔥 GIS болгосон
-  last_location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point"
+  // Сүүлийн MQTT дата бүгд нэг object дотор (GIS index: last_data.location)
+  last_data: {
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point"
+      },
+      coordinates: { type: [Number] } // [lng, lat]
     },
-    coordinates: {
-      type: [Number], // [lng, lat]
-      default: undefined
-    }
-  },
-
-  last_battery: {
-    type: Number,
-    default: 0
+    imei: String,
+    lat: Number,
+    lon: Number,
+    tst: Number,
+    alt: Number,
+    vel: Number,
+    vbat: Number,
+    vbat_v: Number,
+    temp: Number,
+    batt: Number
   },
 
   freq: {
     type: Number,
     default: 15 // минутын давтамж гэж үзэв
-  },
-
-  sim_number: {
-    type: String,
-    index: true
   },
 
   sub_end_date: {
@@ -65,7 +59,7 @@ const userTrackerSchema = new mongoose.Schema({
 });
 
 // 🔥 GIS index
-userTrackerSchema.index({ last_location: "2dsphere" });
+userTrackerSchema.index({ "last_data.location": "2dsphere" });
 
 // 🔥 Нэг user-д нэг tracker 1 л байх бол
 userTrackerSchema.index({ tracker: 1, user: 1 }, { unique: true });
