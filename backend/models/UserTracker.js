@@ -8,6 +8,8 @@ const userTrackerSchema = new mongoose.Schema({
     index: true
   },
 
+  name: String,
+
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -30,7 +32,7 @@ const userTrackerSchema = new mongoose.Schema({
         enum: ["Point"],
         default: "Point"
       },
-      coordinates: { type: [Number] } // [lng, lat]
+      coordinates: { type: [Number], default: [0, 0] } // [lng, lat]
     },
     imei: String,
     lat: Number,
