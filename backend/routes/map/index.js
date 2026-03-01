@@ -6,7 +6,7 @@ import { createPoint
         ,readPoint
         ,updatePoint
         ,deletePoint
-} from '../../controller/geo/border/index.js'
+} from '../../controller/geo/point-names/index.js'
 import loginRequired from "../../middleware/loginRequired.js";
 
 router.post("/point-name", loginRequired, createPoint)
