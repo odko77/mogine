@@ -2,6 +2,7 @@ import mqtt from 'mqtt';
 import colors from 'cli-color';
 import TrackerService from '../services/tracker.js';
 import { mqttQueue } from '../queue.js';
+import Tracker from "../models/Tracker.js"
 
 const mqttPath = '/mqtt';
 const tracker4GTopic = "ondotracks/mqtt";
@@ -27,14 +28,23 @@ export const initMqtt = () => {
   mqttClient.on('connect', function () {
     console.log(colors.bgMagenta.white("MQQT connected"));
 
-    // Connect хийсний дараагаар tracker уудыг subscribe хийнэ
-    mqttClient.subscribe(tracker4GTopic, function (err) {
-      if (!err) {
-        console.log(colors.blueBright(`${tracker4GTopic} subscribed successfully`));
-      } else {
-        console.log(colors.redBright(`${tracker4GTopic} subscription failed`));
+    Tracker.find({}).then(
+      (trackers) => {
+        trackers.map(
+          (tr) => {
+            console.log("imei", tr.imei);
+          }
+        )
+        // Connect хийсний дараагаар tracker уудыг subscribe хийнэ
+        mqttClient.subscribe(tracker4GTopic, function (err) {
+          if (!err) {
+            console.log(colors.blueBright(`${tracker4GTopic} subscribed successfully`));
+          } else {
+            console.log(colors.redBright(`${tracker4GTopic} subscription failed`));
+          }
+        });
       }
-    });
+    )
   });
 
   mqttClient.on('error', function (err) {
