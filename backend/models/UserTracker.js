@@ -52,8 +52,16 @@ const userTrackerSchema = new mongoose.Schema({
   sub_end_date: {
     type: Date,
     index: true
-  }
+  },
 
+  currentBorder: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "TrackerBorder",
+  },
+  isInsideBorder: {
+    type: Boolean,
+    default: false,
+  },
 }, {
   timestamps: true
 });

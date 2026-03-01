@@ -33,7 +33,17 @@ const userTrackerLogSchema = new mongoose.Schema({
   temp: Number,
   batt: { type: Number, default: 0 },
 
-  received_date: { type: Date, default: Date.now, index: true }
+  received_date: { type: Date, default: Date.now, index: true },
+
+  // 🔥 Geofence event
+  event: {
+    type: String,
+    enum: ["ENTER", "EXIT"],
+  },
+  border: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "TrackerBorder",
+  },
 }, {
   timestamps: true
 });

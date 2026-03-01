@@ -1,11 +1,28 @@
 import mongoose from "mongoose";
 
 const trackerBorderSchema = new mongoose.Schema({
-  user_tracker: { type: mongoose.Schema.Types.ObjectId, ref: "UserTracker" },
-  polygon: String,
+  userTrackers: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "UserTracker",
+    },
+  ],
+
+  polygon: {
+    type: {
+      type: String,
+      enum: ["Polygon"],
+      required: true,
+    },
+    coordinates: {
+      type: [[[Number]]], // [[[lng, lat]]]
+      required: true,
+    },
+  },
+
   name: String,
-  created_at: { type: Date, default: Date.now },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 
+trackerBorderSchema.index({ polygon: "2dsphere" });
 export default mongoose.model("TrackerBorder", trackerBorderSchema);
