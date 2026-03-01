@@ -6,6 +6,7 @@ import colors from 'cli-color'
 import { initMqtt } from './mqtt/index.js'
 
 import authRoutes from "./routes/auth.js";
+import mapRoutes from './routes/map/index.js'
 // import admin, { adminRouter } from "./admin.js";
 
 import errorHandler from "./middleware/errorHandler.js";
@@ -19,6 +20,7 @@ app.use(successFn)
 app.use(morgan("dev"));
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/map", mapRoutes);
 // app.use(admin.options.rootPath, adminRouter);
 
 app.use(errorHandler)

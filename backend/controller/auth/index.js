@@ -1,5 +1,6 @@
 import User from "../../models/User.js";
 import jwt from "jsonwebtoken";
+import asyncHandler from '../../middleware/asyncHandler.js'
 
 // Generate OTP and return it in response (test)
 export async function login(req, res) {
@@ -45,3 +46,15 @@ export async function me(req, res) {
   if (!user) throw req.sendError("ERR_007");
   return req.sendData(user);
 }
+
+export const updateMe = asyncHandler(async (req, res) => {
+  const userId = req.userId; // req.userId ашиглана
+
+  if (!req.body) {
+    return res.status(400).json({ success: false, error: "Update data required" });
+  }
+
+  // User update
+  const user = await User.findByIdAndUpdate(userId, req.body, { new: true });
+  return req.sendData(user);
+})
