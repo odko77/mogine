@@ -14,11 +14,13 @@
   "dependencies": {
     "@adminjs/express": "^6.1.1",
     "@adminjs/mongoose": "^4.1.0",
+    "bullmq": "^5.70.1",
     "cli-color": "^2.0.4",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "express-formidable": "^1.2.0",
     "express-session": "^1.19.0",
+    "ioredis": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.2.2",
     "morgan": "^1.10.1",

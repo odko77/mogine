@@ -8,7 +8,6 @@ class TrackerService {
    * MQTT payload боловсруулах
    */
   async processPayload(payload) {
-    console.log("got mqtt data", payload);
     const { imei, lat, lon, tst, vel = 0, batt = 0 } = payload;
     const imeiStr = String(imei);
 

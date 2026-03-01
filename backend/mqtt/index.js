@@ -1,6 +1,7 @@
 import mqtt from 'mqtt';
 import colors from 'cli-color';
 import TrackerService from '../services/tracker.js';
+import { mqttQueue } from '../queue.js';
 
 const mqttPath = '/mqtt';
 const tracker4GTopic = "ondotracks/mqtt";
@@ -24,7 +25,7 @@ export const initMqtt = () => {
 
   /** Subscribing to topic on connection */
   mqttClient.on('connect', function () {
-    console.log(colors.cyan.bold("Connected to the MQTT"));
+    console.log(colors.bgMagenta.white("MQQT connected"));
 
     // Connect хийсний дараагаар tracker уудыг subscribe хийнэ
     mqttClient.subscribe(tracker4GTopic, function (err) {
@@ -40,10 +41,34 @@ export const initMqtt = () => {
     console.log(colors.bgRed.white(`MQTT connecting error :>> ${err}`));
   });
 
-  mqttClient.on('message', async function (topic, message) {
+  mqttClient.on('message', function (topic, message) {
     if (topic === tracker4GTopic) {
-      const jsonMessage = JSON.parse(message.toString());
-      TrackerService.processPayload(jsonMessage);
+      let jsonMessage;
+
+      try {
+        jsonMessage = JSON.parse(message.toString());
+      } catch (err) {
+        console.error("Invalid JSON FROM MQTT:", err);
+        return;
+      }
+
+      // ✅ Message-ийг queue руу хийж өгнө
+      mqttQueue.add("mqttMessage", jsonMessage, {
+        attempts: 3,
+        backoff: {
+          type: "exponential",
+          delay: 1000,
+        },
+      }).catch(err => {
+        console.error("Queue add error", err);
+      });
+
+
+      // TrackerService.processPayload(jsonMessage).then(result => {
+      //   console.log("processPayload result", result);
+      // }).catch(err => {
+      //   console.log("processPayload error", err);
+      // });
     }
   });
 
