@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Big pin (left/bottom) -->
+  <path
+    fill="#000"
+    fill-rule="evenodd"
+    transform="translate(-40 160) scale(15)"
+    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z
+       M12 6.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z"
+  />
+
+  <!-- Small pin (right/top) -->
+  <path
+    fill="#000"
+    fill-rule="evenodd"
+    transform="translate(300 -10) scale(10.4166667)"
+    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z
+       M12 6.5a2.5 2.5 0 1 0 0 5a2.5 2.5 0 1 0 0-5z"
+  />
+
+  <!-- Dashed route -->
+  <path
+    d="M245 450 C 300 415 330 385 355 350 S 400 295 430 270"
+    fill="none"
+    stroke="#000"
+    stroke-width="26"
+    stroke-linecap="round"
+    stroke-dasharray="28 44"
+  />
+</svg>

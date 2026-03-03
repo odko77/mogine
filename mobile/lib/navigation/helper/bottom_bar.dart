@@ -51,7 +51,7 @@ class MongineBottomNav extends StatelessWidget {
                   onPressed: () => onTap(0),
                 ),
                 NavIcon(
-                  icon: Icons.devices_outlined,
+                  icon: Icons.map_outlined,
                   active: currentIndex == 1,
                   onPressed: () => onTap(1),
                 ),
@@ -59,7 +59,7 @@ class MongineBottomNav extends StatelessWidget {
                 SizedBox(width: fabSize * 0.9), // center gap
 
                 NavIcon(
-                  icon: Icons.map_outlined,
+                  icon: Icons.devices_outlined,
                   active: currentIndex == 3,
                   onPressed: () => onTap(3),
                 ),

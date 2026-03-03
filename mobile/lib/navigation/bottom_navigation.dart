@@ -36,26 +36,28 @@ class _BottomNavigationState extends State<BottomNavigation> {
   Widget build(BuildContext context) {
     SizeConfig.init(context);
 
-    return Scaffold(
-      backgroundColor: MyAppTheme.bgColor,
+    return SafeArea(
+      child: Scaffold(
+        backgroundColor: MyAppTheme.bgColor,
 
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(SizeConfig.dh(72)),
-        child: MongineHeader(
-          logoAsset: 'assets/logo.png',
-          phone: phone,
-          name: name,
-          badge: badge,
-          onAvatarTap: () => setState(() => _currentIndex = 4),
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(SizeConfig.dh(72)),
+          child: MongineHeader(
+            logoAsset: 'assets/logo.png',
+            phone: phone,
+            name: name,
+            badge: badge,
+            onAvatarTap: () => setState(() => _currentIndex = 4),
+          ),
         ),
-      ),
 
-      body: IndexedStack(index: _currentIndex, children: _screens),
+        body: IndexedStack(index: _currentIndex, children: _screens),
 
-      bottomNavigationBar: MongineBottomNav(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
-        onCenterTap: () => setState(() => _currentIndex = 2),
+        bottomNavigationBar: MongineBottomNav(
+          currentIndex: _currentIndex,
+          onTap: (i) => setState(() => _currentIndex = i),
+          onCenterTap: () => setState(() => _currentIndex = 2),
+        ),
       ),
     );
   }
