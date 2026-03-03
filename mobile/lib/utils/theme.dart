@@ -70,7 +70,5 @@ abstract class MyAppTheme {
       thumbColor: MaterialStatePropertyAll(secondaryColor),
       trackColor: MaterialStatePropertyAll(grayColor),
     ),
-
-    dialogTheme: const DialogTheme(backgroundColor: cardColor),
   );
 }

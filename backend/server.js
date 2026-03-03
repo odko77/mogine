@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import colors from 'cli-color'
+import cors from "cors";
 import { initMqtt } from './mqtt/index.js'
 
 import authRoutes from "./routes/auth.js";
@@ -16,6 +17,12 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors({
+  origin: [
+    "http://192.168.161.68",
+  ],
+  credentials: true
+}));
 app.use(successFn)
 app.use(morgan("dev"));
 
