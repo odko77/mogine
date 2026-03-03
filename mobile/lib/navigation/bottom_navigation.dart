@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/navigation/helper/bottom_bar.dart';
+import 'package:mobile/navigation/helper/bottom_header.dart';
+import 'package:mobile/utils/theme.dart';
+import 'package:mobile/utils/size_config.dart';
+
 import '../screens/home/main.dart';
-import '../screens/payment/payment_screen.dart';
 import '../screens/map/map_screen.dart';
 import '../screens/menu/menu_screen.dart';
+import '../screens/payment/payment_screen.dart';
 import '../screens/profile/profile_screen.dart';
 
 class BottomNavigation extends StatefulWidget {
@@ -23,30 +28,34 @@ class _BottomNavigationState extends State<BottomNavigation> {
     ProfileScreen(),
   ];
 
+  final String phone = "88195869";
+  final String name = "Т. Одхүү";
+  final int badge = 0;
+
   @override
   Widget build(BuildContext context) {
+    SizeConfig.init(context);
+
     return Scaffold(
+      backgroundColor: MyAppTheme.bgColor,
+
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(SizeConfig.dh(72)),
+        child: MongineHeader(
+          logoAsset: 'assets/logo.png',
+          phone: phone,
+          name: name,
+          badge: badge,
+          onAvatarTap: () => setState(() => _currentIndex = 4),
+        ),
+      ),
+
       body: IndexedStack(index: _currentIndex, children: _screens),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
+
+      bottomNavigationBar: MongineBottomNav(
         currentIndex: _currentIndex,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.devices), label: "Trackers"),
-          BottomNavigationBarItem(icon: Icon(Icons.map), label: "Map"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: "Alerts",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-        ],
+        onTap: (i) => setState(() => _currentIndex = i),
+        onCenterTap: () => setState(() => _currentIndex = 2),
       ),
     );
   }
