@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobile/screens/permissions/permission_screen.dart';
 import '../../screens/login/auth_provider.dart';
 import '../../screens/login/login_screen.dart';
 import '../../navigation/bottom_navigation.dart';
@@ -24,7 +25,11 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
-      GoRoute(path: '/', builder: (context, state) => const BottomNavigation()),
+      GoRoute(path: '/', builder: (context, state) => const PermissionScreen()),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => const BottomNavigation(),
+      ),
     ],
   );
 });
