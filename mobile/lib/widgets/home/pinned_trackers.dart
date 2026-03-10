@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mobile/providers/tracker_provider.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mobile/providers/location_notifier.dart';
+import 'package:mobile/providers/pinned_tracker_provider.dart';
+import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
-import 'package:mobile/utils/theme.dart';
 
 class AnimalCarousel extends ConsumerStatefulWidget {
   const AnimalCarousel({super.key});
@@ -17,9 +19,8 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
     final itemW = SizeConfig.dw(96);
     final itemH = SizeConfig.dh(66);
 
-    final trackers = ref.watch(trackersProvider);
-
-    print(trackers.length);
+    final trackers = ref.watch(pinnedTrackerProvider);
+    final loc = ref.watch(myLocationProvider).value;
 
     return SizedBox(
       height: itemH,
@@ -31,6 +32,12 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
           separatorBuilder: (_, __) => SizedBox(width: SizeConfig.dw(10)),
           itemBuilder: (_, i) {
             final tracker = trackers[i];
+
+            String distanceText = calcText(
+              loc,
+              tracker.point.latitude,
+              tracker.point.longitude,
+            );
 
             return ClipRRect(
               borderRadius: BorderRadius.circular(SizeConfig.dw(14)),
@@ -81,9 +88,9 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            SizedBox(height: SizeConfig.dh(2)),
+                            // SizedBox(height: SizeConfig.dh(2)),
                             Text(
-                              "Танаас 45km",
+                              "Танаас $distanceText",
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(

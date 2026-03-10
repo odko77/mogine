@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:mobile/providers/location_notifier.dart';
+import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'package:mobile/widgets/home/pinned_trackers.dart';
@@ -51,7 +55,6 @@ class HomeScreen extends StatelessWidget {
                   battery: 80,
                   satellites: 5,
                   speed: 12,
-                  distanceKm: 45,
                   imageAsset: "assets/horse.jpg",
                 ),
               ),
@@ -231,7 +234,7 @@ class _SectionTitleWithAction extends StatelessWidget {
   }
 }
 
-class _TrackerCard extends StatelessWidget {
+class _TrackerCard extends ConsumerWidget {
   final String name;
   final String lat;
   final String lon;
@@ -239,7 +242,6 @@ class _TrackerCard extends StatelessWidget {
   final int battery;
   final int satellites;
   final int speed;
-  final int distanceKm;
   final String imageAsset;
 
   const _TrackerCard({
@@ -250,12 +252,14 @@ class _TrackerCard extends StatelessWidget {
     required this.battery,
     required this.satellites,
     required this.speed,
-    required this.distanceKm,
     required this.imageAsset,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myLoc = ref.watch(myLocationProvider).value;
+    String distanceKm = calcText(myLoc, double.parse(lat), double.parse(lon));
+
     return Container(
       padding: EdgeInsets.all(SizeConfig.dw(12)),
       decoration: BoxDecoration(
@@ -325,7 +329,7 @@ class _TrackerCard extends StatelessWidget {
               ),
               SizedBox(height: SizeConfig.dh(6)),
               Text(
-                "$distanceKm км",
+                "$distanceKm",
                 style: TextStyle(
                   color: MyAppTheme.textColor,
                   fontSize: SizeConfig.sp(12),

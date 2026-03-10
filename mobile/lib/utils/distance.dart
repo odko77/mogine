@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:latlong2/latlong.dart';
+
 double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
   const R = 6371000; // earth radius (meters)
 
@@ -48,4 +50,28 @@ String getDirection(double bearing) {
   if (bearing < 247.5) return "South-West";
   if (bearing < 292.5) return "West";
   return "North-West";
+}
+
+String formatDistance(double meters) {
+  if (meters < 1000) {
+    return "${meters.toStringAsFixed(0)}м";
+  }
+  return "${(meters / 1000).toStringAsFixed(1)}км";
+}
+
+String calcText(myLoc, lat, long) {
+  String distanceText = "...";
+  final initialCenter = myLoc != null ? LatLng(myLoc.lat, myLoc.lon) : null;
+
+  if (initialCenter != null) {
+    final distanceInMeters = calculateDistance(
+      initialCenter.latitude,
+      initialCenter.longitude,
+      lat,
+      long,
+    );
+
+    distanceText = formatDistance(distanceInMeters);
+  }
+  return distanceText;
 }
