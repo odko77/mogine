@@ -242,16 +242,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
 
           // ✅ Right top compass button (demo)
-          Positioned(
-            top: SizeConfig.dh(90),
-            right: SizeConfig.dw(16),
-            child: CircleIconButton(
-              icon: Icons.explore, // compass-like
-              onTap: () {
-                // TODO: if you have bearing/rotation feature
-              },
-            ),
-          ),
+          // Positioned(
+          //   top: SizeConfig.dh(90),
+          //   right: SizeConfig.dw(16),
+          //   child: CircleIconButton(
+          //     icon: Icons.explore, // compass-like
+          //     onTap: () {
+          //       // TODO: if you have bearing/rotation feature
+          //     },
+          //   ),
+          // ),
 
           // ✅ Right card placeholder (like screenshot)
           // Positioned(
