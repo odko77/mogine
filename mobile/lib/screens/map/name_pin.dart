@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
+import 'package:mobile/widgets/map/test_marker.dart';
 
 class Pin extends StatelessWidget {
   final Color color;
   final String name;
-  const Pin({required this.color, required this.name});
+  final String imageUrl;
+  const Pin({
+    super.key,
+    required this.color,
+    required this.name,
+    required this.imageUrl,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +28,7 @@ class Pin extends StatelessWidget {
         children: [
           /// 🏷 NAME LABEL
           Positioned(
-            top: -SizeConfig.dh(45),
+            top: -SizeConfig.dh(60),
             child: Container(
               constraints: BoxConstraints(maxWidth: SizeConfig.dw(120)),
               padding: EdgeInsets.symmetric(
@@ -47,8 +54,9 @@ class Pin extends StatelessWidget {
 
           /// 📍 PIN ICON
           Positioned(
-            top: -((pinSize / 2) + SizeConfig.dw(5)),
-            child: Icon(Icons.location_on, size: pinSize, color: color),
+            top: -((pinSize) + SizeConfig.dw(5)),
+            // child: Icon(Icons.location_on, size: pinSize, color: color),
+            child: CompanyPinMarker(imageUrl: imageUrl, size: pinSize),
           ),
 
           // доторх цагаан цэг (icon-ийн төвд)

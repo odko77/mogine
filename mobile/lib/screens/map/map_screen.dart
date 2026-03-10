@@ -12,6 +12,8 @@ import 'package:mobile/screens/map/search_tracker.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'package:mobile/widgets/bottom_sheet/tracker_bottom_sheet.dart';
+import 'package:mobile/widgets/map/compass.dart';
+import 'package:mobile/widgets/map/test_marker.dart';
 import 'package:mobile/widgets/map/user_location.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -22,7 +24,7 @@ class MapScreen extends ConsumerStatefulWidget {
 }
 
 class _MapScreenState extends ConsumerState<MapScreen> {
-  final MapController _mapController = MapController();
+  final MapController mapController = MapController();
 
   // user location байхгшй үед
   final LatLng _fallbackCenter = const LatLng(47.9186, 106.9177); // УБ
@@ -84,7 +86,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   void _moveTo(LatLng p, {double? zoom}) {
     _zoom = zoom ?? _zoom;
-    _mapController.move(p, _zoom);
+    mapController.move(p, _zoom);
     setState(() {});
   }
 
@@ -127,15 +129,39 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   void _zoomIn() {
     _zoom = (_zoom + 1).clamp(3, 20).toDouble();
-    _mapController.move(_mapController.camera.center, _zoom);
+    mapController.move(mapController.camera.center, _zoom);
     setState(() {});
   }
 
   void _zoomOut() {
     _zoom = (_zoom - 1).clamp(3, 20).toDouble();
-    _mapController.move(_mapController.camera.center, _zoom);
+    mapController.move(mapController.camera.center, _zoom);
     setState(() {});
   }
+
+  // Marker buildFactoryMarker({
+  //   required double lat,
+  //   required double lng,
+  //   required String imageUrl,
+  //   required String name,
+  //   VoidCallback? onTap,
+  // }) {
+  //   const double pinSize = 60;
+  //   final double stemHeight = pinSize * 0.56;
+  //   final double dotSize = pinSize * 0.15;
+  //   final double totalHeight = pinSize + stemHeight + dotSize / 2;
+
+  //   return Marker(
+  //     point: LatLng(lat, lng),
+  //     width: pinSize,
+  //     height: totalHeight,
+  //     alignment: Alignment.topCenter,
+  //     child: Align(
+  //       alignment: Alignment.topCenter,
+  //       child: CompanyPinMarker(imageUrl: imageUrl, size: pinSize),
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +176,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       body: Stack(
         children: [
           FlutterMap(
-            mapController: _mapController,
+            mapController: mapController,
             options: MapOptions(
               initialCenter: initialCenter,
               initialZoom: _zoom,
@@ -175,8 +201,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 markers: _trackers.map((t) => _trackerMarker(t)).toList(),
               ),
 
+              // MarkerLayer(
+              //   markers: _trackers
+              //       .map(
+              //         (t) => buildFactoryMarker(
+              //           lat: t.point.latitude,
+              //           lng: t.point.longitude,
+              //           name: t.name,
+              //           imageUrl: "assets/horse.jpg",
+              //           onTap: () {},
+              //         ),
+              //       )
+              //       .toList(),
+              // ),
+
               /// your existing location widget/layer
               UserLocation(),
+
+              Positioned(
+                top: SizeConfig.dh(65),
+                left: SizeConfig.dh(16),
+                child: CompassWidget(
+                  mapController: mapController,
+                  size: SizeConfig.dh(60),
+                ),
+              ),
             ],
           ),
           // ✅ Top search bar
@@ -261,7 +310,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           _moveTo(t.point, zoom: 16);
           _openTrackerSheet(t); // 👈
         },
-        child: Pin(color: t.color, name: t.name),
+        child: Pin(color: t.color, name: t.name, imageUrl: t.image),
       ),
     );
   }
