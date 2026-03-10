@@ -39,7 +39,7 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: Container(
-        margin: EdgeInsets.all(SizeConfig.dw(12)),
+        // margin: EdgeInsets.all(SizeConfig.dw(12)),
         padding: EdgeInsets.all(SizeConfig.dw(12)),
         decoration: BoxDecoration(
           color: MyAppTheme.bgColor,

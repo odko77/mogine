@@ -42,14 +42,14 @@ double _radToDeg(double rad) {
 }
 
 String getDirection(double bearing) {
-  if (bearing >= 337.5 || bearing < 22.5) return "North";
-  if (bearing < 67.5) return "North-East";
-  if (bearing < 112.5) return "East";
-  if (bearing < 157.5) return "South-East";
-  if (bearing < 202.5) return "South";
-  if (bearing < 247.5) return "South-West";
-  if (bearing < 292.5) return "West";
-  return "North-West";
+  if (bearing >= 337.5 || bearing < 22.5) return "хойд";
+  if (bearing < 67.5) return "зүүн хойд";
+  if (bearing < 112.5) return "зүүн";
+  if (bearing < 157.5) return "зүүн урд";
+  if (bearing < 202.5) return "урд";
+  if (bearing < 247.5) return "баруун урд";
+  if (bearing < 292.5) return "баруун";
+  return "баруун хойд";
 }
 
 String formatDistance(double meters) {
@@ -74,4 +74,29 @@ String calcText(myLoc, lat, long) {
     distanceText = formatDistance(distanceInMeters);
   }
   return distanceText;
+}
+
+String calcFullText(myLoc, lat, long) {
+  if (myLoc == null) return "Таны байршил олдсонгүй";
+
+  final initialCenter = LatLng(myLoc.lat, myLoc.lon);
+
+  final distanceInMeters = calculateDistance(
+    initialCenter.latitude,
+    initialCenter.longitude,
+    lat,
+    long,
+  );
+
+  final bearing = calculateBearing(
+    initialCenter.latitude,
+    initialCenter.longitude,
+    lat,
+    long,
+  );
+
+  final direction = getDirection(bearing);
+  final distanceText = formatDistance(distanceInMeters);
+
+  return "Танаас $direction зүгт $distanceText-н зайд байна";
 }

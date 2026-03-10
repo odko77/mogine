@@ -153,11 +153,11 @@ class _CompassDialPainter extends CustomPainter {
       bold: true,
     );
     _drawCardinalLabel(canvas, size, 'Ө', math.pi, const Color(0xFF424242));
-    _drawCardinalLabel(canvas, size, 'Б', math.pi / 2, const Color(0xFF424242));
+    _drawCardinalLabel(canvas, size, 'З', math.pi / 2, const Color(0xFF424242));
     _drawCardinalLabel(
       canvas,
       size,
-      'З',
+      'Б',
       -math.pi / 2,
       const Color(0xFF424242),
     );

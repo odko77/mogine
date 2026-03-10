@@ -1,15 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/models/tracker_state.dart';
+import 'package:mobile/providers/location_notifier.dart';
+import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
-class TrackerShortHint extends StatelessWidget {
+class TrackerShortHint extends ConsumerWidget {
   final TrackerInfo tracker;
 
   const TrackerShortHint({super.key, required this.tracker});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myLoc = ref.watch(myLocationProvider).value;
+    final distanceText = calcFullText(
+      myLoc,
+      tracker.point.latitude,
+      tracker.point.longitude,
+    );
+
     return Container(
       padding: EdgeInsets.all(SizeConfig.dw(12)),
       decoration: BoxDecoration(
@@ -28,7 +38,7 @@ class TrackerShortHint extends StatelessWidget {
 
           Expanded(
             child: Text(
-              "Танаас баруун урд зүгт 45км-ийн зайд байна",
+              distanceText,
               style: TextStyle(
                 color: MyAppTheme.grayColor,
                 fontWeight: FontWeight.w600,
