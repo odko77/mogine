@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mobile/models/location_state.dart';
 import 'package:mobile/models/tracker_state.dart';
 import 'package:mobile/providers/location_notifier.dart';
-import 'package:mobile/screens/map/button/circle_button.dart';
 import 'package:mobile/screens/map/button/square_button.dart';
 import 'package:mobile/screens/map/name_pin.dart';
 import 'package:mobile/screens/map/search_tracker.dart';
@@ -13,7 +11,6 @@ import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'package:mobile/widgets/bottom_sheet/tracker_bottom_sheet.dart';
 import 'package:mobile/widgets/map/compass.dart';
-import 'package:mobile/widgets/map/test_marker.dart';
 import 'package:mobile/widgets/map/user_location.dart';
 
 class MapScreen extends ConsumerStatefulWidget {

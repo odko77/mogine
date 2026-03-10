@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/providers/location_notifier.dart';
+import 'package:mobile/providers/tracker_provider.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'core/router/app_router.dart';
@@ -18,6 +19,7 @@ class MainApp extends ConsumerWidget {
     SizeConfig.init(context);
 
     ref.watch(myLocationProvider);
+    ref.watch(trackersProvider);
 
     final router = ref.watch(routerProvider);
     final themeAsync = ref.watch(themeProvider);

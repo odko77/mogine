@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
+import 'package:mobile/widgets/home/pinned_trackers.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -22,7 +23,7 @@ class HomeScreen extends StatelessWidget {
             SizeConfig.dh(14),
           ),
           children: [
-            _AnimalCarousel(),
+            AnimalCarousel(),
             SizedBox(height: SizeConfig.dh(14)),
 
             _SectionTitle(title: "Цэсүүд"),
@@ -59,56 +60,6 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: SizeConfig.dh(18)),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _AnimalCarousel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final itemW = SizeConfig.dw(96);
-    final itemH = SizeConfig.dh(66);
-
-    return SizedBox(
-      height: itemH,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: 3,
-        separatorBuilder: (_, __) => SizedBox(width: SizeConfig.dw(10)),
-        itemBuilder: (_, i) {
-          return Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(SizeConfig.dw(14)),
-                child: Image.asset(
-                  "assets/horse.jpg",
-                  width: itemW,
-                  height: itemH,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Positioned(
-                left: SizeConfig.dw(8),
-                bottom: SizeConfig.dh(6),
-                child: Text(
-                  "Хар морь",
-                  style: TextStyle(
-                    color: MyAppTheme.textColor,
-                    fontSize: SizeConfig.sp(11),
-                    fontWeight: FontWeight.w700,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black.withOpacity(0.6),
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          );
-        },
       ),
     );
   }
