@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile/navigation/bottom_navigation.dart';
 import 'package:mobile/providers/auth_provider.dart';
+import 'package:mobile/screens/add-device/add_device_detail_screen.dart';
+import 'package:mobile/screens/add-device/add_device_screen.dart';
 import 'package:mobile/screens/home/main.dart';
 import 'package:mobile/screens/login/login_screen.dart';
 import 'package:mobile/screens/map/map_screen.dart';
@@ -34,7 +36,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       if (loggedIn && (isLogin || isRoot)) {
-        return '/home';
+        return '/';
       }
 
       return null;
@@ -42,6 +44,17 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
       GoRoute(path: '/', builder: (context, state) => const PermissionScreen()),
+      GoRoute(
+        path: '/add-device',
+        builder: (context, state) => const AddDeviceScreen(),
+      ),
+      GoRoute(
+        path: '/add-device-detail',
+        builder: (context, state) {
+          final code = state.extra as String? ?? '';
+          return AddDeviceDetailScreen(deviceCode: code);
+        },
+      ),
       ShellRoute(
         builder: (context, state, child) {
           return BottomNavigation(child: child);

@@ -13,7 +13,11 @@ class PermissionScreen extends StatefulWidget {
 
 class _PermissionScreenState extends State<PermissionScreen> {
   Future<void> requestPermissions() async {
-    await [Permission.location, Permission.notification].request();
+    await [
+      Permission.location,
+      Permission.notification,
+      Permission.camera,
+    ].request();
 
     if (mounted) {
       context.pushReplacement("/home");

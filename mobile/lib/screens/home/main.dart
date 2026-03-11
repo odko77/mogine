@@ -91,7 +91,9 @@ class _MenuGrid extends StatelessWidget {
             color: const Color(0xFF33C24D),
             icon: Icons.add_box_rounded,
             label: "Төхөөрөмж нэмэх",
-            onTap: () {},
+            onTap: () {
+              context.go("/add-device");
+            },
           ),
         ),
         SizedBox(width: SizeConfig.dw(12)),
