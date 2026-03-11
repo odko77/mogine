@@ -70,12 +70,13 @@ class _MenuGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: _MenuButton(
             color: const Color(0xFF33C24D),
-            icon: Icons.map_outlined,
-            label: "Зураг",
+            icon: Icons.add_box_rounded,
+            label: "Төхөөрөмж нэмэх",
             onTap: () {},
           ),
         ),
@@ -92,7 +93,7 @@ class _MenuGrid extends StatelessWidget {
         Expanded(
           child: _MenuButton(
             color: const Color(0xFF00B8D4),
-            icon: Icons.credit_card,
+            icon: Icons.credit_card_rounded,
             label: "Төлбөр",
             onTap: () {},
           ),
