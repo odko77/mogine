@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:go_router/go_router.dart';
+import 'package:mobile/models/tracker_state.dart';
 import 'package:mobile/providers/location_notifier.dart';
+import 'package:mobile/providers/select_tracker_provider.dart';
+import 'package:mobile/providers/tracker_provider.dart';
 import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'package:mobile/widgets/home/pinned_trackers.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     SizeConfig.init(context);
+
+    final trackers = ref.watch(trackersProvider);
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
@@ -43,21 +48,14 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: SizeConfig.dh(10)),
 
             // List cards
-            ...List.generate(
-              3,
-              (i) => Padding(
-                padding: EdgeInsets.only(bottom: SizeConfig.dh(10)),
-                child: _TrackerCard(
-                  name: "Хар морь",
-                  lat: "106.321321",
-                  lon: "48.231321",
-                  time: "2026-03-03 14:32",
-                  battery: 80,
-                  satellites: 5,
-                  speed: 12,
-                  imageAsset: "assets/horse.jpg",
-                ),
-              ),
+            Column(
+              children: List.generate(trackers.length, (i) {
+                final tracker = trackers[i];
+                return Padding(
+                  padding: EdgeInsets.only(bottom: SizeConfig.dh(10)),
+                  child: _TrackerCard(tracker: tracker),
+                );
+              }),
             ),
 
             SizedBox(height: SizeConfig.dh(18)),
@@ -235,110 +233,117 @@ class _SectionTitleWithAction extends StatelessWidget {
 }
 
 class _TrackerCard extends ConsumerWidget {
-  final String name;
-  final String lat;
-  final String lon;
-  final String time;
-  final int battery;
-  final int satellites;
-  final int speed;
-  final String imageAsset;
+  final TrackerInfo tracker;
 
-  const _TrackerCard({
-    required this.name,
-    required this.lat,
-    required this.lon,
-    required this.time,
-    required this.battery,
-    required this.satellites,
-    required this.speed,
-    required this.imageAsset,
-  });
+  const _TrackerCard({required this.tracker});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final myLoc = ref.watch(myLocationProvider).value;
-    String distanceKm = calcText(myLoc, double.parse(lat), double.parse(lon));
+    String distanceKm = calcText(
+      myLoc,
+      tracker.point.latitude,
+      tracker.point.longitude,
+    );
 
-    return Container(
-      padding: EdgeInsets.all(SizeConfig.dw(12)),
-      decoration: BoxDecoration(
-        color: MyAppTheme.cardColor,
-        borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
-      ),
-      child: Row(
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
-            child: Image.asset(
-              imageAsset,
-              width: SizeConfig.dw(58),
-              height: SizeConfig.dw(58),
-              fit: BoxFit.cover,
+    return InkWell(
+      onTap: () {
+        ref.read(selectedTrackerProvider.notifier).state = tracker;
+        context.go("/map");
+      },
+      child: Container(
+        padding: EdgeInsets.all(SizeConfig.dw(12)),
+        decoration: BoxDecoration(
+          color: MyAppTheme.cardColor,
+          borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
+              child: Image.asset(
+                tracker.image,
+                width: SizeConfig.dw(58),
+                height: SizeConfig.dw(58),
+                fit: BoxFit.cover,
+              ),
             ),
-          ),
-          SizedBox(width: SizeConfig.dw(12)),
+            SizedBox(width: SizeConfig.dw(12)),
 
-          // Middle info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            // Middle info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    tracker.name,
+                    style: TextStyle(
+                      color: MyAppTheme.textColor,
+                      fontSize: SizeConfig.sp(13),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: SizeConfig.dh(6)),
+                  _InfoLine(
+                    icon: Icons.location_on_outlined,
+                    text:
+                        "${tracker.point.latitude} ${tracker.point.longitude}",
+                  ),
+                  SizedBox(height: SizeConfig.dh(4)),
+                  _InfoLine(
+                    icon: Icons.calendar_month,
+                    text: tracker.lastUpdate.toIso8601String(),
+                  ),
+                  SizedBox(height: SizeConfig.dh(6)),
+                  Row(
+                    children: [
+                      _MiniChip(
+                        icon: Icons.battery_full,
+                        text: "${tracker.battery}%",
+                      ),
+                      SizedBox(width: SizeConfig.dw(8)),
+                      _MiniChip(
+                        icon: Icons.device_thermostat_rounded,
+                        text: "${tracker.temperature}",
+                      ),
+                      SizedBox(width: SizeConfig.dw(8)),
+                      _MiniChip(
+                        icon: Icons.speed,
+                        text: "${tracker.speed} км/ц",
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            SizedBox(width: SizeConfig.dw(10)),
+
+            // Right distance
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  name,
-                  style: TextStyle(
-                    color: MyAppTheme.textColor,
-                    fontSize: SizeConfig.sp(13),
-                    fontWeight: FontWeight.w800,
+                SvgPicture.asset(
+                  'assets/distance.svg',
+                  height: SizeConfig.dw(24),
+                  colorFilter: const ColorFilter.mode(
+                    MyAppTheme.textColor,
+                    BlendMode.srcIn,
                   ),
                 ),
                 SizedBox(height: SizeConfig.dh(6)),
-                _InfoLine(icon: Icons.location_on_outlined, text: "$lat  $lon"),
-                SizedBox(height: SizeConfig.dh(4)),
-                _InfoLine(icon: Icons.calendar_month, text: time),
-                SizedBox(height: SizeConfig.dh(6)),
-                Row(
-                  children: [
-                    _MiniChip(icon: Icons.battery_full, text: "$battery%"),
-                    SizedBox(width: SizeConfig.dw(8)),
-                    _MiniChip(
-                      icon: Icons.device_thermostat_rounded,
-                      text: "$satellites",
-                    ),
-                    SizedBox(width: SizeConfig.dw(8)),
-                    _MiniChip(icon: Icons.speed, text: "$speed км/ц"),
-                  ],
+                Text(
+                  "$distanceKm",
+                  style: TextStyle(
+                    color: MyAppTheme.textColor,
+                    fontSize: SizeConfig.sp(12),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ],
             ),
-          ),
-
-          SizedBox(width: SizeConfig.dw(10)),
-
-          // Right distance
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(
-                'assets/distance.svg',
-                height: SizeConfig.dw(24),
-                colorFilter: const ColorFilter.mode(
-                  MyAppTheme.textColor,
-                  BlendMode.srcIn,
-                ),
-              ),
-              SizedBox(height: SizeConfig.dh(6)),
-              Text(
-                "$distanceKm",
-                style: TextStyle(
-                  color: MyAppTheme.textColor,
-                  fontSize: SizeConfig.sp(12),
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

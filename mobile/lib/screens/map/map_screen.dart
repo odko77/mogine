@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:mobile/models/tracker_state.dart';
 import 'package:mobile/providers/location_notifier.dart';
 import 'package:mobile/providers/point_provider.dart';
+import 'package:mobile/providers/select_tracker_provider.dart';
 import 'package:mobile/screens/map/button/square_button.dart';
 import 'package:mobile/screens/map/name_pin.dart';
 import 'package:mobile/screens/map/search_tracker.dart';
@@ -42,7 +43,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       speed: 12,
       lastUpdate: DateTime.now().subtract(const Duration(minutes: 5)),
       image: "assets/horse.jpg",
-      color: MyAppTheme.secondaryColor,
     ),
     TrackerInfo(
       id: "T002",
@@ -55,7 +55,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       speed: 0,
       lastUpdate: DateTime.now().subtract(const Duration(minutes: 12)),
       image: "assets/horse.jpg",
-      color: const Color(0xFF2ECC71),
     ),
     TrackerInfo(
       id: "T003",
@@ -68,9 +67,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       speed: 4,
       lastUpdate: DateTime.now().subtract(const Duration(minutes: 2)),
       image: "assets/horse.jpg",
-      color: const Color(0xFF00B8D4),
     ),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final selectedTracker = ref.read(selectedTrackerProvider);
+      if (selectedTracker != null) {
+        _moveTo(selectedTracker.point, zoom: 16);
+        _openTrackerSheet(selectedTracker);
+      }
+    });
+  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -136,7 +146,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           maxSize: 0.92,
         ),
       ),
-    );
+    ).then((_) {
+      ref.read(selectedTrackerProvider.notifier).state = null;
+    });
   }
 
   // ── Build ──────────────────────────────────────────────────────────────────
@@ -144,7 +156,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final loc = ref.watch(myLocationProvider).value;
-    final initialCenter = loc != null
+    LatLng initialCenter = loc != null
         ? LatLng(loc.lat, loc.lon)
         : _fallbackCenter;
 
@@ -249,17 +261,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       child: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: t.color, width: 2.5),
+          border: Border.all(color: Colors.blue, width: 2.5),
           boxShadow: [
             BoxShadow(
-              color: t.color.withOpacity(0.35),
+              color: Colors.blue.withOpacity(0.35),
               blurRadius: 8,
               spreadRadius: 1,
             ),
           ],
         ),
         child: Pin(
-          color: t.color,
+          color: Colors.blue,
           name: t.name,
           imageUrl: t.image,
           onTap: () {

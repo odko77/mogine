@@ -1,8 +1,9 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:mobile/providers/location_notifier.dart';
 import 'package:mobile/providers/pinned_tracker_provider.dart';
+import 'package:mobile/providers/select_tracker_provider.dart';
 import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
 
@@ -24,22 +25,25 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
 
     return SizedBox(
       height: itemH,
-      child: SizedBox(
-        height: itemH,
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          itemCount: trackers.length,
-          separatorBuilder: (_, __) => SizedBox(width: SizeConfig.dw(10)),
-          itemBuilder: (_, i) {
-            final tracker = trackers[i];
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: trackers.length,
+        separatorBuilder: (_, __) => SizedBox(width: SizeConfig.dw(10)),
+        itemBuilder: (_, i) {
+          final tracker = trackers[i];
 
-            String distanceText = calcText(
-              loc,
-              tracker.point.latitude,
-              tracker.point.longitude,
-            );
+          final distanceText = calcText(
+            loc,
+            tracker.point.latitude,
+            tracker.point.longitude,
+          );
 
-            return ClipRRect(
+          return GestureDetector(
+            onTap: () {
+              ref.read(selectedTrackerProvider.notifier).state = tracker;
+              context.go("/map");
+            },
+            child: ClipRRect(
               borderRadius: BorderRadius.circular(SizeConfig.dw(14)),
               child: SizedBox(
                 width: itemW,
@@ -52,8 +56,6 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                       height: itemH,
                       fit: BoxFit.cover,
                     ),
-
-                    // доод хэсгийг харлуулах overlay
                     Positioned(
                       left: 0,
                       right: 0,
@@ -88,7 +90,6 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            // SizedBox(height: SizeConfig.dh(2)),
                             Text(
                               "Танаас $distanceText",
                               maxLines: 1,
@@ -106,9 +107,9 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                   ],
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
