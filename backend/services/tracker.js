@@ -239,20 +239,19 @@ class TrackerService {
 
 export default new TrackerService();
 
-async function test() {
-  console.log("dsadsa");
-  const trackers = await UserTracker.find({})
-  for (const t of trackers) {
-    if (t.last_data?.tst) {
-      let lastReceiveDate = t.last_data?.tst
-        ? new Date(t.last_data?.tst * 1000)
-        : new Date();
-      t.lastReceiveDate = lastReceiveDate;
-      await t.save()
-      console.log("saved");
-      
-    }
-  }
-}
+// async function test() {
+//   console.log("dsadsa");
+//   const trackers = await UserTracker.find({})
+//   for (const t of trackers) {
+//     if (t.last_data?.tst) {
+//       let lastReceiveDate = t.last_data?.tst
+//         ? new Date(t.last_data?.tst * 1000)
+//         : new Date();
+//       t.lastReceiveDate = lastReceiveDate;
+//       await t.save()
+//       console.log("saved");
+//     }
+//   }
+// }
 
-test()
+// test()
