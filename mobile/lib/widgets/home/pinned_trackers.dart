@@ -20,6 +20,11 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
     final itemW = SizeConfig.dw(96);
     final itemH = SizeConfig.dh(66);
 
+    final dpr = MediaQuery.of(context).devicePixelRatio;
+
+    final int citemW = (itemW * dpr).toInt();
+    final int citemH = (itemH * dpr).toInt();
+
     final trackers = ref.watch(pinnedTrackerProvider);
     final loc = ref.watch(myLocationProvider).value;
 
@@ -50,11 +55,17 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                 height: itemH,
                 child: Stack(
                   children: [
-                    Image.asset(
-                      tracker.image,
-                      width: itemW,
-                      height: itemH,
-                      fit: BoxFit.cover,
+                    RepaintBoundary(
+                      child: Image.asset(
+                        tracker.image,
+                        width: itemW,
+                        height: itemH,
+                        fit: BoxFit.cover,
+
+                        cacheWidth: citemW,
+                        cacheHeight: citemH,
+                        filterQuality: FilterQuality.low,
+                      ),
                     ),
                     Positioned(
                       left: 0,

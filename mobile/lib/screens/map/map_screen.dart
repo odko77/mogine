@@ -24,17 +24,22 @@ class MapScreen extends ConsumerStatefulWidget {
   ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
-class _MapScreenState extends ConsumerState<MapScreen> {
+class _MapScreenState extends ConsumerState<MapScreen>
+    with AutomaticKeepAliveClientMixin {
   final MapController mapController = MapController();
   final LatLng _fallbackCenter = const LatLng(47.9186, 106.9177);
-  double _zoom = 14;
 
-  // ── Газрын зураг дээр тэмдэглэгдэх цэг ──
+  double _zoom = 14;
   LatLng? _pinTracker;
+  bool _sheetOpened = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final selectedTracker = ref.read(selectedTrackerProvider);
       if (selectedTracker != null) {
@@ -42,29 +47,36 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         _openTrackerSheet(selectedTracker);
       }
     });
-  }
 
-  // ── Helpers ────────────────────────────────────────────────────────────────
+    ref.listenManual<TrackerInfo?>(selectedTrackerProvider, (prev, next) {
+      if (next != null && mounted && !_sheetOpened) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _moveTo(next.point, zoom: 16);
+          _openTrackerSheet(next);
+        });
+      }
+    });
+  }
 
   void _moveTo(LatLng p, {double? zoom}) {
     _zoom = zoom ?? _zoom;
     mapController.move(p, _zoom);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _zoomIn() {
     _zoom = (_zoom + 1).clamp(3, 20).toDouble();
     mapController.move(mapController.camera.center, _zoom);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   void _zoomOut() {
     _zoom = (_zoom - 1).clamp(3, 20).toDouble();
     mapController.move(mapController.camera.center, _zoom);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
-  // Газрын зураг дарахад pinTracker-т утга өгч bottomsheet нээнэ
   void _onMapTap(LatLng latLng) {
     setState(() => _pinTracker = latLng);
     _moveTo(latLng);
@@ -77,15 +89,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      // Sheet хаагдахад pin-г арилгана
       builder: (_) => PinTrackerSheet(latLng: latLng),
     ).then((_) {
-      setState(() => _pinTracker = null);
+      if (mounted) {
+        setState(() => _pinTracker = null);
+      }
     });
   }
 
   void _openTrackerSheet(TrackerInfo t) {
+    if (_sheetOpened) return;
+    _sheetOpened = true;
+
     final sheetCtrl = DraggableScrollableController();
+
     showModalBottomSheet(
       context: context,
       useRootNavigator: true,
@@ -109,37 +126,34 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ),
       ),
     ).then((_) {
+      _sheetOpened = false;
       ref.read(selectedTrackerProvider.notifier).state = null;
     });
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
-
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final loc = ref.watch(myLocationProvider).value;
-    LatLng initialCenter = loc != null
+    final initialCenter = loc != null
         ? LatLng(loc.lat, loc.lon)
         : _fallbackCenter;
-
-    final mapPoints = ref.watch(mapPointsProvider);
-    final trackers = ref.watch(trackersProvider);
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
       body: Stack(
         children: [
-          // ── Газрын зураг ──────────────────────────────────────────────────
           FlutterMap(
             mapController: mapController,
             options: MapOptions(
               initialCenter: initialCenter,
               initialZoom: _zoom,
               maxZoom: 20,
+              onTap: (_, latLng) => _onMapTap(latLng),
               onPositionChanged: (pos, _) {
                 if (!pos.zoom.isNaN) _zoom = pos.zoom;
               },
-              onTap: (_, latLng) => _onMapTap(latLng),
               interactionOptions: const InteractionOptions(
                 flags: InteractiveFlag.all,
               ),
@@ -147,25 +161,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             children: [
               TileLayer(
                 urlTemplate:
-                    "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
+                    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                userAgentPackageName: 'com.example.app',
                 maxZoom: 20,
+                keepBuffer: 1,
+                panBuffer: 0,
+                tileUpdateTransformer: TileUpdateTransformers.throttle(
+                  const Duration(milliseconds: 80),
+                ),
+                evictErrorTileStrategy: EvictErrorTileStrategy.dispose,
               ),
 
-              // Tracker markers
-              MarkerLayer(markers: trackers.map(_trackerMarker).toList()),
+              const TrackerMarkerLayer(),
 
-              // pinTracker marker
               if (_pinTracker != null)
                 MarkerLayer(markers: [_pinTrackerMarker(_pinTracker!)]),
 
-              if (mapPoints.isNotEmpty)
-                MarkerLayer(
-                  markers: mapPoints
-                      .map((t) => _pinTrackerMarker(t.position))
-                      .toList(),
-                ),
+              const MapPointsLayer(),
 
-              UserLocation(),
+              const UserLocation(),
 
               Positioned(
                 top: SizeConfig.dh(65),
@@ -178,7 +192,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             ],
           ),
 
-          // ── Search bar ────────────────────────────────────────────────────
           Positioned(
             top: SizeConfig.dh(14),
             left: SizeConfig.dw(16),
@@ -186,7 +199,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             child: SearchTracker(hint: "Төхөөрөмж хайх ...", onTap: () {}),
           ),
 
-          // ── Zoom + locate товчнууд ─────────────────────────────────────
           Positioned(
             left: SizeConfig.dw(16),
             top: SizeConfig.dh(200),
@@ -213,39 +225,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  // ── Marker builders ────────────────────────────────────────────────────────
-  Marker _trackerMarker(TrackerInfo t) {
-    final pinSize = SizeConfig.dw(36);
-    return Marker(
-      point: t.point,
-      width: pinSize,
-      height: pinSize,
-      alignment: Alignment.center,
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.blue, width: 2.5),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blue.withOpacity(0.35),
-              blurRadius: 8,
-              spreadRadius: 1,
-            ),
-          ],
-        ),
-        child: Pin(
-          color: Colors.blue,
-          name: t.name,
-          imageUrl: t.image,
-          onTap: () {
-            _moveTo(t.point, zoom: 16);
-            _openTrackerSheet(t);
-          },
-        ),
-      ),
-    );
-  }
-
   Marker _pinTrackerMarker(LatLng point) {
     final pinSize = SizeConfig.dw(36);
     return Marker(
@@ -257,10 +236,71 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         Icons.location_on,
         color: Colors.redAccent,
         size: pinSize,
-        shadows: [
+        shadows: const [
           Shadow(color: Colors.black38, blurRadius: 6, offset: Offset(0, 2)),
         ],
       ),
+    );
+  }
+}
+
+class TrackerMarkerLayer extends ConsumerWidget {
+  const TrackerMarkerLayer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final trackers = ref.watch(trackersProvider);
+
+    return MarkerLayer(
+      markers: trackers.map((t) {
+        final pinSize = SizeConfig.dw(36);
+
+        return Marker(
+          point: t.point,
+          width: pinSize,
+          height: pinSize,
+          alignment: Alignment.center,
+          child: RepaintBoundary(
+            child: Pin(
+              color: Colors.blue,
+              name: t.name,
+              imageUrl: t.image,
+              onTap: () {
+                ref.read(selectedTrackerProvider.notifier).state = t;
+              },
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class MapPointsLayer extends ConsumerWidget {
+  const MapPointsLayer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mapPoints = ref.watch(mapPointsProvider);
+
+    if (mapPoints.isEmpty) return const SizedBox.shrink();
+
+    final pinSize = SizeConfig.dw(36);
+
+    return MarkerLayer(
+      markers: mapPoints.map((t) {
+        return Marker(
+          point: t.position,
+          width: pinSize,
+          height: pinSize,
+          alignment: Alignment.topCenter,
+          child: Icon(
+            Icons.location_on,
+            color: Colors.redAccent,
+            size: pinSize,
+          ),
+        );
+      }).toList(),
     );
   }
 }
