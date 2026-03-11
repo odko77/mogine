@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
@@ -16,7 +16,7 @@ class AddDeviceDetailScreen extends StatefulWidget {
 
 class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
   final TextEditingController _nameCtrl = TextEditingController();
-  // final ImagePicker _picker = ImagePicker();
+  final ImagePicker _picker = ImagePicker();
 
   File? _imageFile;
   String? _animalType;
@@ -36,16 +36,42 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    // final file = await _picker.pickImage(
-    //   source: ImageSource.gallery,
-    //   imageQuality: 85,
-    // );
-    // if (file == null) return;
+  // Future<void> _pickImage() async {
+  //   // final file = await _picker.pickImage(
+  //   //   source: ImageSource.gallery,
+  //   //   imageQuality: 85,
+  //   // );
+  //   // if (file == null) return;
 
-    // setState(() {
-    //   _imageFile = File(file.path);
-    // });
+  //   // setState(() {
+  //   //   _imageFile = File(file.path);
+  //   // });
+  // }
+
+  Future<void> _pickImage() async {
+    try {
+      final file = await _picker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+      );
+
+      if (file == null) {
+        debugPrint('Image picking cancelled');
+        return;
+      }
+
+      setState(() {
+        _imageFile = File(file.path);
+      });
+    } catch (e, st) {
+      debugPrint('pick image error: $e');
+      debugPrintStack(stackTrace: st);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Зураг сонгох үед алдаа гарлаа: $e')),
+      );
+    }
   }
 
   void _submit() {
