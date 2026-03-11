@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mobile/providers/auth_provider.dart';
 import 'package:mobile/providers/location_notifier.dart';
-import 'package:mobile/screens/login/auth_provider.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
@@ -17,14 +17,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     SizeConfig.init(context);
 
-    final myLoc = ref.watch(myLocationProvider).value;
+    final session = ref.watch(authProvider).value;
+    final me = session?.me;
 
-    // demo data
-    const phone = "88195869";
-    const name = "Т. Одхүү";
+    final phone = me?['phone_number']?.toString() ?? '---';
+    final name = me?['name']?.toString() ?? '---';
 
     const trackerCount = 5;
-    const animalCount = 38;
 
     // device-level subscription summary
     const activeSubs = 3;

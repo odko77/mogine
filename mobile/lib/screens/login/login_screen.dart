@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile/api/endpoints/auth.dart';
-import 'package:mobile/screens/login/auth_provider.dart';
+import 'package:mobile/providers/auth_provider.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
@@ -90,7 +91,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final token = res.data?["token"]?.toString();
 
       if (token != null) {
-        await ref.read(authProvider.notifier).login(token);
+        final ok = await ref.read(authProvider.notifier).login(token);
+
+        if (!mounted) return;
+
+        if (ok) {
+          context.go('/home');
+        } else {
+          setState(() {
+            _errorText = "Хэрэглэгчийн мэдээлэл авахад алдаа гарлаа";
+          });
+        }
       }
 
       // TODO: token хадгалах + navigation
