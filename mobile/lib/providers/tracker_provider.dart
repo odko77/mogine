@@ -1,62 +1,30 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobile/api/endpoints/trackers.dart';
 import 'package:mobile/models/tracker_state.dart';
 
 class TrackerNotifier extends StateNotifier<List<TrackerInfo>> {
-  TrackerNotifier()
-    : super([
-        TrackerInfo(
-          id: "T001",
-          name: 'Хонгор азарга',
-          animalType: "horse",
-          point: const LatLng(47.9323, 106.916743),
-          address: "106.321321 48.321321",
-          battery: 80,
-          temperature: -5,
-          speed: 12,
-          lastUpdate: DateTime.now().subtract(const Duration(minutes: 5)),
-          image: "assets/horse.jpg",
-        ),
-        TrackerInfo(
-          id: "T002",
-          name: 'Эрлийз үхэр маш урт нэртэй жишээ нэг хоёр гурав дөрөв',
-          animalType: "cow",
-          point: const LatLng(47.918945, 106.916561),
-          address: "106.321321 48.321321",
-          battery: 65,
-          temperature: -7,
-          speed: 0,
-          lastUpdate: DateTime.now().subtract(const Duration(minutes: 12)),
-          image: "assets/horse.jpg",
-        ),
-        TrackerInfo(
-          id: "T003",
-          name: 'Тэмээ',
-          animalType: "camel",
-          point: const LatLng(47.9108, 106.9054),
-          address: "106.321321 48.321321",
-          battery: 52,
-          temperature: -3,
-          speed: 4,
-          lastUpdate: DateTime.now().subtract(const Duration(minutes: 2)),
-          image: "assets/horse.jpg",
-        ),
-        TrackerInfo(
-          id: "T004",
-          name: 'Тэмээ 222',
-          animalType: "dsadsa",
-          point: const LatLng(47.9201, 106.9054),
-          address: "106.321321 48.321321",
-          battery: 52,
-          temperature: -3,
-          speed: 4,
-          lastUpdate: DateTime.now().subtract(const Duration(minutes: 2)),
-          image: "assets/horse.jpg",
-        ),
-      ]);
+  TrackerNotifier() : super([]);
+
+  bool _loading = false;
+  bool get isLoading => _loading;
 
   void addTracker(TrackerInfo tracker) {
     state = [...state, tracker];
+  }
+
+  Future<void> fetchTrackers() async {
+    try {
+      _loading = true;
+
+      final trackers = await TrackerApi.getLatestRecievedTrackers();
+      state = trackers;
+    } catch (e) {
+      print('fetchLatestTrackers error: $e');
+    } finally {
+      _loading = false;
+    }
   }
 
   void removeTracker(String id) {
@@ -93,3 +61,23 @@ final trackersProvider =
     StateNotifierProvider<TrackerNotifier, List<TrackerInfo>>((ref) {
       return TrackerNotifier();
     });
+
+final latestTrackersProvider = Provider<List<TrackerInfo>>((ref) {
+  final trackers = ref.watch(trackersProvider);
+
+  final sorted = [...trackers]
+    ..sort((a, b) => b.lastUpdate.compareTo(a.lastUpdate));
+
+  return sorted.take(5).toList();
+});
+
+final pinnedTrackersProvider = Provider<List<TrackerInfo>>((ref) {
+  final trackers = ref.watch(trackersProvider);
+
+  final pinned = trackers.where((t) => t.isPinned).toList();
+
+  final sorted = [...pinned]
+    ..sort((a, b) => b.lastUpdate.compareTo(a.lastUpdate));
+
+  return sorted.toList();
+});

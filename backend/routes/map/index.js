@@ -10,7 +10,7 @@ import { createPoint
 
 import { getUserTrackersMap, addUserTracker } from "../../controller/geo/user-tracker/index.js";
 
-import { getTrackers } from '../../controller/geo/tracker/index.js'
+import { getLastTrackers, getTrackers } from '../../controller/geo/tracker/index.js'
 
 import { getLogsByTracker } from "../../controller/geo/user-tracker-log/index.js";
 
@@ -30,5 +30,7 @@ router.route("/user-tracker-log/:trackerId")
 
 router.route("/tracker")
         .get(getTrackers)
+
+router.route("/latest-recieved-trackers").get(loginRequired, getLastTrackers)
 
 export default router

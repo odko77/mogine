@@ -56,6 +56,11 @@ const userTrackerSchema = new mongoose.Schema({
     index: true
   },
 
+  isPinned: {
+    type: Boolean,
+    default: false
+  },
+
   currentBorder: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "TrackerBorder",
@@ -63,6 +68,10 @@ const userTrackerSchema = new mongoose.Schema({
   isInsideBorder: {
     type: Boolean,
     default: false,
+  },
+  lastReceiveDate: {
+    type: Date,
+    index: true
   },
 }, {
   timestamps: true

@@ -1,4 +1,5 @@
 import 'package:latlong2/latlong.dart';
+import 'package:mobile/utils/format.dart';
 
 class TrackerInfo {
   final String id;
@@ -11,6 +12,8 @@ class TrackerInfo {
   final int speed;
   final DateTime lastUpdate;
   final String image;
+  final bool isPinned;
+  final String displayDate;
 
   TrackerInfo({
     required this.id,
@@ -23,6 +26,8 @@ class TrackerInfo {
     required this.speed,
     required this.lastUpdate,
     required this.image,
+    required this.isPinned,
+    required this.displayDate,
   });
 
   TrackerInfo copyWith({
@@ -36,6 +41,7 @@ class TrackerInfo {
     int? speed,
     DateTime? lastUpdate,
     String? image,
+    bool? isPinned,
   }) {
     return TrackerInfo(
       id: id ?? this.id,
@@ -48,6 +54,37 @@ class TrackerInfo {
       speed: speed ?? this.speed,
       lastUpdate: lastUpdate ?? this.lastUpdate,
       image: image ?? this.image,
+      isPinned: isPinned ?? this.isPinned,
+      displayDate: formatDate(lastUpdate ?? this.lastUpdate),
+    );
+  }
+
+  factory TrackerInfo.fromJson(Map<String, dynamic> json) {
+    final lastData = json['last_data'] ?? {};
+    final tracker = json['tracker'] ?? {};
+
+    final lat = (lastData['lat'] ?? 0).toDouble();
+    final lon = (lastData['lon'] ?? 0).toDouble();
+
+    final lastUpdate = json['lastReceiveDate'] != null
+        ? DateTime.parse(json['lastReceiveDate']).toLocal()
+        : DateTime.now();
+
+    return TrackerInfo(
+      id: json['_id']?.toString() ?? '',
+      name: json['name']?.toString() ?? 'No name',
+      animalType: tracker['type']?.toString() ?? 'unknown',
+      point: LatLng(lat, lon),
+      address: '$lon, $lat',
+      battery: ((lastData['batt'] ?? 0) as num).toInt(),
+      temperature: ((lastData['temp'] ?? 0) as num).toInt(),
+      speed: ((lastData['vel'] ?? 0) as num).toInt(),
+      lastUpdate: lastUpdate,
+
+      isPinned: json['isPinned'] ?? false,
+      image: 'assets/horse.jpg',
+
+      displayDate: formatDate(lastUpdate),
     );
   }
 }

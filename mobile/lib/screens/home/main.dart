@@ -11,14 +11,28 @@ import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 import 'package:mobile/widgets/home/pinned_trackers.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      ref.read(trackersProvider.notifier).fetchTrackers();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     SizeConfig.init(context);
 
-    final trackers = ref.watch(trackersProvider);
+    final latestTrackers = ref.watch(latestTrackersProvider);
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
@@ -49,8 +63,8 @@ class HomeScreen extends ConsumerWidget {
 
             // List cards
             Column(
-              children: List.generate(trackers.length, (i) {
-                final tracker = trackers[i];
+              children: List.generate(latestTrackers.length, (i) {
+                final tracker = latestTrackers[i];
                 return Padding(
                   padding: EdgeInsets.only(bottom: SizeConfig.dh(10)),
                   child: _TrackerCard(tracker: tracker),
@@ -293,7 +307,7 @@ class _TrackerCard extends ConsumerWidget {
                   SizedBox(height: SizeConfig.dh(4)),
                   _InfoLine(
                     icon: Icons.calendar_month,
-                    text: tracker.lastUpdate.toIso8601String(),
+                    text: tracker.displayDate,
                   ),
                   SizedBox(height: SizeConfig.dh(6)),
                   Row(

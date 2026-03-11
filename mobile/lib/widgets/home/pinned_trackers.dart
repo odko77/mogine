@@ -2,8 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mobile/providers/location_notifier.dart';
-import 'package:mobile/providers/pinned_tracker_provider.dart';
 import 'package:mobile/providers/select_tracker_provider.dart';
+import 'package:mobile/providers/tracker_provider.dart';
 import 'package:mobile/utils/distance.dart';
 import 'package:mobile/utils/size_config.dart';
 
@@ -25,7 +25,7 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
     final int citemW = (itemW * dpr).toInt();
     final int citemH = (itemH * dpr).toInt();
 
-    final trackers = ref.watch(pinnedTrackerProvider);
+    final trackers = ref.watch(pinnedTrackersProvider);
     final loc = ref.watch(myLocationProvider).value;
 
     return SizedBox(
