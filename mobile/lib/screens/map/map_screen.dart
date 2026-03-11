@@ -6,6 +6,7 @@ import 'package:mobile/models/tracker_state.dart';
 import 'package:mobile/providers/location_notifier.dart';
 import 'package:mobile/providers/point_provider.dart';
 import 'package:mobile/providers/select_tracker_provider.dart';
+import 'package:mobile/providers/tracker_provider.dart';
 import 'package:mobile/screens/map/button/square_button.dart';
 import 'package:mobile/screens/map/name_pin.dart';
 import 'package:mobile/screens/map/search_tracker.dart';
@@ -30,45 +31,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   // ── Газрын зураг дээр тэмдэглэгдэх цэг ──
   LatLng? _pinTracker;
-
-  late final List<TrackerInfo> _trackers = [
-    TrackerInfo(
-      id: "T001",
-      name: 'Хонгор азарга',
-      animalType: "horse",
-      point: const LatLng(47.9323, 106.916743),
-      address: "106.321321 48.321321",
-      battery: 80,
-      temperature: -5,
-      speed: 12,
-      lastUpdate: DateTime.now().subtract(const Duration(minutes: 5)),
-      image: "assets/horse.jpg",
-    ),
-    TrackerInfo(
-      id: "T002",
-      name: 'Эрлийз үхэр маш урт нэртэй жишээ нэг хоёр гурав дөрөв',
-      animalType: "cow",
-      point: const LatLng(47.918945, 106.916561),
-      address: "106.321321 48.321321",
-      battery: 65,
-      temperature: -7,
-      speed: 0,
-      lastUpdate: DateTime.now().subtract(const Duration(minutes: 12)),
-      image: "assets/horse.jpg",
-    ),
-    TrackerInfo(
-      id: "T003",
-      name: 'Тэмээ',
-      animalType: "camel",
-      point: const LatLng(47.9108, 106.9054),
-      address: "106.321321 48.321321",
-      battery: 52,
-      temperature: -3,
-      speed: 4,
-      lastUpdate: DateTime.now().subtract(const Duration(minutes: 2)),
-      image: "assets/horse.jpg",
-    ),
-  ];
 
   @override
   void initState() {
@@ -161,6 +123,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         : _fallbackCenter;
 
     final mapPoints = ref.watch(mapPointsProvider);
+    final trackers = ref.watch(trackersProvider);
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
@@ -189,7 +152,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               ),
 
               // Tracker markers
-              MarkerLayer(markers: _trackers.map(_trackerMarker).toList()),
+              MarkerLayer(markers: trackers.map(_trackerMarker).toList()),
 
               // pinTracker marker
               if (_pinTracker != null)
