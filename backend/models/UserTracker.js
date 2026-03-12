@@ -73,6 +73,7 @@ const userTrackerSchema = new mongoose.Schema({
     type: Date,
     index: true
   },
+  imageUrl: String,
 }, {
   timestamps: true
 });

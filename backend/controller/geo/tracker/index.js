@@ -14,5 +14,13 @@ export const getLastTrackers = asyncHandler(async (req, res) => {
       })
         .populate("tracker")
         .sort({ lastReceiveDate: -1 })
-    return req.sendData(trackers)
+
+    const ts = trackers.map(
+        (t) => {
+            t.imageUrl = process.env.PUBLIC_HOST + t.imageUrl
+            return t
+        }
+    )
+
+    return req.sendData(ts)
 })

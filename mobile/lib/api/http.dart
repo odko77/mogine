@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_response.dart';
@@ -57,6 +59,57 @@ class Http {
       return ApiResponse<T>(success: false, error: _dioToText(e));
     } catch (_) {
       return ApiResponse<T>(success: false, error: 'Түр алдаа гарлаа');
+    }
+  }
+
+  /// ---------------- MULTIPART POST ----------------
+  static Future<ApiResponse<T>> postMultipart<T>(
+    String path, {
+    Map<String, dynamic>? body,
+    Map<String, dynamic>? query,
+    File? file,
+    String fileKey = 'file',
+    T Function(dynamic raw)? parser,
+    Options? options,
+  }) async {
+    try {
+      final formMap = <String, dynamic>{};
+
+      if (body != null) {
+        formMap.addAll(body);
+      }
+
+      if (file != null) {
+        final fileName = file.path.split('/').last;
+
+        formMap[fileKey] = await MultipartFile.fromFile(
+          file.path,
+          filename: fileName,
+        );
+      }
+
+      final formData = FormData.fromMap(formMap);
+
+      final res = await dio.post(
+        path,
+        data: formData,
+        queryParameters: query,
+        options: (options ?? Options()).copyWith(
+          contentType: 'multipart/form-data',
+        ),
+      );
+
+      return ApiResponse<T>.fromJson(res.data, parser: parser);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map) {
+        return ApiResponse<T>.fromJson(data, parser: parser);
+      }
+
+      return ApiResponse<T>(success: false, error: _dioToText(e));
+    } catch (e) {
+      return ApiResponse<T>(success: false, error: 'Түр алдаа гарлаа: $e');
     }
   }
 

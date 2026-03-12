@@ -82,7 +82,7 @@ class TrackerInfo {
       lastUpdate: lastUpdate,
 
       isPinned: json['isPinned'] ?? false,
-      image: 'assets/horse.jpg',
+      image: json['imageUrl'] ?? "",
 
       displayDate: formatDate(lastUpdate),
     );

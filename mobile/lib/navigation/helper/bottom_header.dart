@@ -10,6 +10,7 @@ class MongineHeader extends StatelessWidget {
   final VoidCallback? onAvatarTap;
 
   const MongineHeader({
+    super.key,
     required this.logoAsset,
     required this.phone,
     required this.name,

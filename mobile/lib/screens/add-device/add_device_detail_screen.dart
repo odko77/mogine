@@ -1,7 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile/api/http.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
@@ -36,23 +39,13 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
     super.dispose();
   }
 
-  // Future<void> _pickImage() async {
-  //   // final file = await _picker.pickImage(
-  //   //   source: ImageSource.gallery,
-  //   //   imageQuality: 85,
-  //   // );
-  //   // if (file == null) return;
-
-  //   // setState(() {
-  //   //   _imageFile = File(file.path);
-  //   // });
-  // }
-
   Future<void> _pickImage() async {
     try {
       final file = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 85,
+        imageQuality: 90,
+        maxHeight: 512,
+        maxWidth: 512,
       );
 
       if (file == null) {
@@ -60,21 +53,52 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
         return;
       }
 
+      final croppedFile = await ImageCropper().cropImage(
+        sourcePath: file.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressFormat: ImageCompressFormat.jpg,
+        compressQuality: 75,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Зураг тайрах',
+            toolbarColor: MyAppTheme.primaryColor,
+            toolbarWidgetColor: Colors.white,
+            activeControlsWidgetColor: MyAppTheme.secondaryColor,
+            initAspectRatio: CropAspectRatioPreset.square,
+            lockAspectRatio: true,
+            hideBottomControls: false,
+          ),
+          IOSUiSettings(
+            title: 'Зураг тайрах',
+            doneButtonTitle: 'Болсон',
+            cancelButtonTitle: 'Болих',
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+            aspectRatioPickerButtonHidden: true,
+          ),
+        ],
+      );
+
+      if (croppedFile == null) {
+        debugPrint('Cropping cancelled');
+        return;
+      }
+
       setState(() {
-        _imageFile = File(file.path);
+        _imageFile = File(croppedFile.path);
       });
     } catch (e, st) {
-      debugPrint('pick image error: $e');
+      debugPrint('pick/crop image error: $e');
       debugPrintStack(stackTrace: st);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Зураг сонгох үед алдаа гарлаа: $e')),
+        SnackBar(content: Text('Зураг сонгох/тайрах үед алдаа гарлаа: $e')),
       );
     }
   }
 
-  void _submit() {
+  void _submit() async {
     final name = _nameCtrl.text.trim();
 
     if (name.isEmpty) {
@@ -86,12 +110,23 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
       return;
     }
 
-    // TODO:
-    // image upload
-    // save api call
-    // device bind api call
+    final res = await Http.postMultipart(
+      '/v1/map/user-tracker',
+      body: {
+        'imei': widget.deviceCode,
+        'name': name,
+        'animalType': _animalType,
+      },
+      file: _imageFile,
+      fileKey: 'image',
+    );
 
-    _showMsg('Төхөөрөмж амжилттай нэмэгдэхэд бэлэн боллоо');
+    if (res.success) {
+      _showMsg('Амжилттай хадгаллаа');
+      context.go("/home");
+    } else {
+      _showMsg(res.error ?? 'Алдаа гарлаа');
+    }
   }
 
   void _showMsg(String text) {
@@ -101,6 +136,8 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
   @override
   Widget build(BuildContext context) {
     SizeConfig.init(context);
+
+    final imageBoxSize = SizeConfig.dw(180);
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
@@ -139,9 +176,7 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 ],
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(14)),
-
             Text(
               'Зураг',
               style: TextStyle(
@@ -150,55 +185,57 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(8)),
-
-            InkWell(
-              onTap: _pickImage,
-              borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
-              child: Container(
-                height: SizeConfig.dh(180),
-                decoration: BoxDecoration(
-                  color: MyAppTheme.cardColor,
-                  borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
-                  border: Border.all(
-                    color: MyAppTheme.primaryColor,
-                    width: 1.5,
+            Center(
+              child: InkWell(
+                onTap: _pickImage,
+                borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
+                child: Container(
+                  width: imageBoxSize,
+                  height: imageBoxSize,
+                  decoration: BoxDecoration(
+                    color: MyAppTheme.cardColor,
+                    borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
+                    border: Border.all(
+                      color: MyAppTheme.primaryColor,
+                      width: 1.5,
+                    ),
                   ),
-                ),
-                child: _imageFile != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(SizeConfig.dw(16)),
-                        child: Image.file(
-                          _imageFile!,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                        ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.add_a_photo_outlined,
-                            color: MyAppTheme.grayColor,
-                            size: SizeConfig.dw(28),
+                  child: _imageFile != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(
+                            SizeConfig.dw(16),
                           ),
-                          SizedBox(height: SizeConfig.dh(8)),
-                          Text(
-                            'Зураг сонгох',
-                            style: TextStyle(
+                          child: Image.file(
+                            _imageFile!,
+                            fit: BoxFit.cover,
+                            width: imageBoxSize,
+                            height: imageBoxSize,
+                          ),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.add_a_photo_outlined,
                               color: MyAppTheme.grayColor,
-                              fontSize: SizeConfig.sp(12),
-                              fontWeight: FontWeight.w600,
+                              size: SizeConfig.dw(28),
                             ),
-                          ),
-                        ],
-                      ),
+                            SizedBox(height: SizeConfig.dh(8)),
+                            Text(
+                              'Зураг сонгох',
+                              style: TextStyle(
+                                color: MyAppTheme.grayColor,
+                                fontSize: SizeConfig.sp(12),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(14)),
-
             Text(
               'Нэр',
               style: TextStyle(
@@ -207,9 +244,7 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(8)),
-
             Container(
               padding: EdgeInsets.symmetric(horizontal: SizeConfig.dw(14)),
               decoration: BoxDecoration(
@@ -229,9 +264,7 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 ),
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(14)),
-
             Text(
               'Төрөл',
               style: TextStyle(
@@ -240,9 +273,7 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-
             SizedBox(height: SizeConfig.dh(8)),
-
             Wrap(
               spacing: SizeConfig.dw(8),
               runSpacing: SizeConfig.dh(8),
@@ -290,9 +321,7 @@ class _AddDeviceDetailScreenState extends State<AddDeviceDetailScreen> {
                 );
               }).toList(),
             ),
-
             SizedBox(height: SizeConfig.dh(20)),
-
             SizedBox(
               width: double.infinity,
               height: SizeConfig.dh(48),

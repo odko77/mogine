@@ -32,22 +32,40 @@ export const getUserTrackersMap = asyncHandler(async (req, res) => {
  * Тухайн tracker-д хэрэглэгч холбож UserTracker үүсгэх
  * body: { userId, freq, sub_end_date, trackertype, custom_trackertype }
  */
+/**
+ * POST /trackers/:trackerId/usertrackers
+ * Тухайн tracker-д хэрэглэгч холбож UserTracker үүсгэх
+ * body: { freq, sub_end_date, trackertype, custom_trackertype, name }
+ * file: image
+ */
 export const addUserTracker = asyncHandler(async (req, res) => {
-    const userId = req.userId
-    const { trackerId, freq, sub_end_date, trackertype, custom_trackertype, name } = req.body;
+    const userId = req.userId;
+    const { imei, freq, sub_end_date, trackertype, custom_trackertype, name } = req.body;
 
-    const tracker = await Tracker.findById(trackerId);
+    const tracker = await Tracker.findOne({ imei: imei });
     if (!tracker) {
         return res.status(404).json({ success: false, error: "Tracker not found" });
     }
 
-    const a = await UserTracker.findOne({ user: userId, tracker: trackerId, state: "ACTIVE" })
+    const a = await UserTracker.findOne({
+        user: userId,
+        tracker: tracker._id,
+        state: "ACTIVE"
+    });
+
     if (a) {
-        return req.sendInfo("INF_001")
+        return req.sendInfo("INF_001");
+    }
+
+    let imageUrl = null;
+
+    if (req.file) {
+        imageUrl = `/uploads/usertrackers/${req.file.filename}`;
     }
 
     const userTracker = await UserTracker.create({
         name,
+        imageUrl,
         tracker: tracker._id,
         user: userId,
         freq,

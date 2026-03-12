@@ -5,6 +5,7 @@ import morgan from "morgan";
 import colors from 'cli-color'
 import cors from "cors";
 import { initMqtt } from './mqtt/index.js'
+import path from 'path'
 
 import authRoutes from "./routes/auth.js";
 import mapRoutes from './routes/map/index.js'
@@ -25,6 +26,8 @@ app.use(cors({
 }));
 app.use(successFn)
 app.use(morgan("dev"));
+
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/map", mapRoutes);

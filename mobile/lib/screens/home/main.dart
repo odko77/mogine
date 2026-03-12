@@ -278,7 +278,7 @@ class _TrackerCard extends ConsumerWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
-              child: Image.asset(
+              child: Image.network(
                 tracker.image,
                 width: SizeConfig.dw(58),
                 height: SizeConfig.dw(58),

@@ -41,7 +41,16 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
 
     return Scaffold(
       backgroundColor: MyAppTheme.bgColor,
-      appBar: AppBar(title: const Text('Төхөөрөмж нэмэх'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Төхөөрөмж нэмэх'),
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            context.go("/home");
+          },
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.all(SizeConfig.dw(14)),

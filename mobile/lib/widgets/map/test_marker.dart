@@ -41,7 +41,7 @@ class CompanyPinMarker extends StatelessWidget {
               ],
             ),
             child: ClipOval(
-              child: Image.asset(
+              child: Image.network(
                 imageUrl,
                 fit: BoxFit.contain,
                 errorBuilder: (_, __, ___) {

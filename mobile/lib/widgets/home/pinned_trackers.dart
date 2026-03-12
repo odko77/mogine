@@ -56,7 +56,7 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                 child: Stack(
                   children: [
                     RepaintBoundary(
-                      child: Image.asset(
+                      child: Image.network(
                         tracker.image,
                         width: itemW,
                         height: itemH,
