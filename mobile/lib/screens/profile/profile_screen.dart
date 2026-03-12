@@ -21,7 +21,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final me = session?.me;
 
     final phone = me?['phone_number']?.toString() ?? '---';
-    final name = me?['name']?.toString() ?? '---';
+    final name = me?['first_name']?.toString() ?? '---';
 
     const trackerCount = 5;
 

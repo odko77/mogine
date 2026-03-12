@@ -52,7 +52,7 @@ class BottomNavigation extends ConsumerWidget {
     final me = session?.me;
 
     final phone = me?['phone_number']?.toString() ?? '---';
-    final name = me?['name']?.toString() ?? '---';
+    final name = me?['first_name']?.toString() ?? '---';
     const int badge = 0;
 
     return SafeArea(
