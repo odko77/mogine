@@ -27,7 +27,7 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
   void _save() {
     if (!_formKey.currentState!.validate()) return;
     ref
-        .read(mapPointsProvider.notifier)
+        .read(placePointsProvider.notifier)
         .add(widget.latLng, _controller.text.trim());
     Navigator.pop(context);
   }

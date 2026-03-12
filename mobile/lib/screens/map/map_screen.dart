@@ -281,7 +281,7 @@ class MapPointsLayer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mapPoints = ref.watch(mapPointsProvider);
+    final mapPoints = ref.watch(placePointsProvider);
 
     if (mapPoints.isEmpty) return const SizedBox.shrink();
 
@@ -290,14 +290,59 @@ class MapPointsLayer extends ConsumerWidget {
     return MarkerLayer(
       markers: mapPoints.map((t) {
         return Marker(
-          point: t.position,
+          point: t.point,
           width: pinSize,
           height: pinSize,
-          alignment: Alignment.topCenter,
-          child: Icon(
-            Icons.location_on,
-            color: Colors.redAccent,
-            size: pinSize,
+          alignment: Alignment.center,
+          child: RepaintBoundary(
+            child: SizedBox(
+              width: pinSize,
+              height: pinSize,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Container(
+                    width: pinSize,
+                    height: pinSize,
+                    alignment: Alignment.bottomCenter,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: MyAppTheme.primaryColor,
+                        width: 2,
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    top: -0,
+                    child: Container(
+                      constraints: BoxConstraints(maxWidth: SizeConfig.dw(120)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig.dw(10),
+                        vertical: SizeConfig.dh(5),
+                      ),
+                      decoration: BoxDecoration(
+                        color: MyAppTheme.primaryColor.withOpacity(.9),
+                        borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
+                      ),
+                      child: Text(
+                        t.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: MyAppTheme.textColor,
+                          fontSize: SizeConfig.sp(11),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         );
       }).toList(),

@@ -1,32 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:latlong2/latlong.dart';
 
 // ── Model ──────────────────────────────────────────────────────────────────
-class MapPoint {
+class PlacePoint {
   final String id;
-  final LatLng position;
-  final String label;
+  final String name;
+  final LatLng point;
 
-  const MapPoint({
-    required this.id,
-    required this.position,
-    required this.label,
-  });
+  const PlacePoint({required this.id, required this.name, required this.point});
 }
 
 // ── Points Notifier ────────────────────────────────────────────────────────
-class MapPointsNotifier extends Notifier<List<MapPoint>> {
+class PlacePointNotifier extends Notifier<List<PlacePoint>> {
   @override
-  List<MapPoint> build() => [];
+  List<PlacePoint> build() => [];
 
   void add(LatLng position, String label) {
     state = [
       ...state,
-      MapPoint(
+      PlacePoint(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        position: position,
-        label: label,
+        point: position,
+        name: label,
       ),
     ];
   }
@@ -36,10 +31,7 @@ class MapPointsNotifier extends Notifier<List<MapPoint>> {
   void clear() => state = [];
 }
 
-final mapPointsProvider = NotifierProvider<MapPointsNotifier, List<MapPoint>>(
-  MapPointsNotifier.new,
-);
-
-// ── Add-mode toggle ────────────────────────────────────────────────────────
-// true үед газрын зураг дарахад цэг нэмэх горим идэвхтэй
-final addModeProvider = StateProvider<bool>((ref) => false);
+final placePointsProvider =
+    NotifierProvider<PlacePointNotifier, List<PlacePoint>>(
+      PlacePointNotifier.new,
+    );

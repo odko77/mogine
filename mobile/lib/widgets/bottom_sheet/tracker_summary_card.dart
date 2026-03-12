@@ -27,7 +27,7 @@ class TrackerSummaryCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
                   image: DecorationImage(
-                    image: AssetImage(tracker.image),
+                    image: NetworkImage(tracker.image),
                     fit: BoxFit.cover,
                   ),
                 ),
