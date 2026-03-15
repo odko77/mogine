@@ -57,6 +57,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
         });
       }
     });
+
+    Future.microtask(() {
+      ref.read(placePointsProvider.notifier).fetchPlaces();
+    });
   }
 
   void _moveTo(LatLng p, {double? zoom}) {

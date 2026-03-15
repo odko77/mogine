@@ -1,29 +1,38 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
-
-// ── Model ──────────────────────────────────────────────────────────────────
-class PlacePoint {
-  final String id;
-  final String name;
-  final LatLng point;
-
-  const PlacePoint({required this.id, required this.name, required this.point});
-}
+import 'package:mobile/api/endpoints/place.dart';
+import 'package:mobile/models/place_state.dart';
 
 // ── Points Notifier ────────────────────────────────────────────────────────
 class PlacePointNotifier extends Notifier<List<PlacePoint>> {
+  bool _loading = false;
+  bool get isLoading => _loading;
+
   @override
   List<PlacePoint> build() => [];
 
-  void add(LatLng position, String label) {
-    state = [
-      ...state,
-      PlacePoint(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        point: position,
-        name: label,
-      ),
-    ];
+  Future<void> fetchPlaces() async {
+    try {
+      _loading = true;
+
+      final places = await PlaceApi.getPlaces();
+      print("places ${places[1].name}");
+      state = places;
+    } catch (e) {
+      print('fetch places error: $e');
+    } finally {
+      _loading = false;
+    }
+  }
+
+  void add(LatLng position, String label) async {
+    final place = PlacePoint(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      point: position,
+      name: label,
+    );
+    await PlaceApi.create(place.toJson());
+    state = [...state, place];
   }
 
   void remove(String id) => state = state.where((p) => p.id != id).toList();
