@@ -60,15 +60,16 @@ class TrackerSummaryCard extends StatelessWidget {
                           color: MyAppTheme.secondaryColor,
                         ),
                         SizedBox(width: SizeConfig.dw(4)),
-                        Text(
-                          DateFormat(
-                            "yyyy/MM/dd HH:mm",
-                          ).format(tracker.lastUpdate),
-                          style: TextStyle(
-                            color: MyAppTheme.grayColor,
-                            fontSize: SizeConfig.sp(11),
+                        if (tracker.lastUpdate != null)
+                          Text(
+                            DateFormat(
+                              "yyyy/MM/dd HH:mm",
+                            ).format(tracker.lastUpdate!),
+                            style: TextStyle(
+                              color: MyAppTheme.grayColor,
+                              fontSize: SizeConfig.sp(11),
+                            ),
                           ),
-                        ),
                       ],
                     ),
 

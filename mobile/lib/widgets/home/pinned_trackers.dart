@@ -32,9 +32,47 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
       height: itemH,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        itemCount: trackers.length,
+        itemCount: trackers.length + 1,
         separatorBuilder: (_, __) => SizedBox(width: SizeConfig.dw(10)),
         itemBuilder: (_, i) {
+          if (i == trackers.length) {
+            return GestureDetector(
+              onTap: () {
+                context.go('/map');
+              },
+              child: Container(
+                width: itemW,
+                height: itemH,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(SizeConfig.dw(14)),
+                  border: Border.all(color: Colors.black.withOpacity(0.08)),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.arrow_forward_rounded,
+                      size: SizeConfig.dw(24),
+                      color: Colors.black87,
+                    ),
+                    SizedBox(height: SizeConfig.dh(4)),
+                    Text(
+                      "Бүгдийг\nхарах",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: SizeConfig.sp(10),
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
           final tracker = trackers[i];
 
           final distanceText = calcText(
@@ -61,12 +99,36 @@ class _AnimalCarouselState extends ConsumerState<AnimalCarousel> {
                         width: itemW,
                         height: itemH,
                         fit: BoxFit.cover,
-
                         cacheWidth: citemW,
                         cacheHeight: citemH,
                         filterQuality: FilterQuality.low,
                       ),
                     ),
+
+                    if (tracker.isPinned)
+                      Positioned(
+                        top: 0,
+                        right: 0,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: SizeConfig.dw(6),
+                            vertical: SizeConfig.dh(2),
+                          ),
+                          decoration: const BoxDecoration(
+                            color: Colors.orange,
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10),
+                              topRight: Radius.circular(14),
+                            ),
+                          ),
+                          child: Icon(
+                            Icons.push_pin,
+                            size: SizeConfig.dw(12),
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+
                     Positioned(
                       left: 0,
                       right: 0,

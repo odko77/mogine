@@ -309,7 +309,7 @@ class _TrackerCard extends ConsumerWidget {
                   SizedBox(height: SizeConfig.dh(4)),
                   _InfoLine(
                     icon: Icons.calendar_month,
-                    text: tracker.displayDate,
+                    text: tracker.displayDate ?? "",
                   ),
                   SizedBox(height: SizeConfig.dh(6)),
                   Row(

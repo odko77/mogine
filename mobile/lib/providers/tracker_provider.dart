@@ -62,11 +62,20 @@ final trackersProvider =
       return TrackerNotifier();
     });
 
+final mapTrackersProvider = Provider<List<TrackerInfo>>((ref) {
+  final trackers = ref.watch(trackersProvider);
+  final sorted = trackers.where((t) {
+    return t.lastUpdate != null;
+  }).toList();
+  return sorted;
+});
+
 final latestTrackersProvider = Provider<List<TrackerInfo>>((ref) {
   final trackers = ref.watch(trackersProvider);
 
-  final sorted = [...trackers]
-    ..sort((a, b) => b.lastUpdate.compareTo(a.lastUpdate));
+  final sorted = trackers.where((t) {
+    return t.lastUpdate != null;
+  }).toList()..sort((a, b) => b.lastUpdate!.compareTo(a.lastUpdate!));
 
   return sorted.take(5).toList();
 });
@@ -75,9 +84,9 @@ final pinnedTrackersProvider = Provider<List<TrackerInfo>>((ref) {
   final trackers = ref.watch(trackersProvider);
 
   final pinned = trackers.where((t) => t.isPinned).toList();
+  final others = trackers.where((t) => !t.isPinned).toList();
 
-  final sorted = [...pinned]
-    ..sort((a, b) => b.lastUpdate.compareTo(a.lastUpdate));
+  final merged = [...pinned, ...others];
 
-  return sorted.toList();
+  return merged.take(5).toList();
 });

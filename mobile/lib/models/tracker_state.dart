@@ -10,10 +10,10 @@ class TrackerInfo {
   final int battery;
   final int temperature;
   final int speed;
-  final DateTime lastUpdate;
+  final DateTime? lastUpdate;
   final String image;
   final bool isPinned;
-  final String displayDate;
+  final String? displayDate;
 
   TrackerInfo({
     required this.id,
@@ -24,10 +24,10 @@ class TrackerInfo {
     required this.battery,
     required this.temperature,
     required this.speed,
-    required this.lastUpdate,
+    this.lastUpdate,
     required this.image,
     required this.isPinned,
-    required this.displayDate,
+    this.displayDate,
   });
 
   TrackerInfo copyWith({
@@ -42,7 +42,10 @@ class TrackerInfo {
     DateTime? lastUpdate,
     String? image,
     bool? isPinned,
+    String? displayDate,
   }) {
+    final updatedLastUpdate = lastUpdate ?? this.lastUpdate;
+
     return TrackerInfo(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -52,23 +55,25 @@ class TrackerInfo {
       battery: battery ?? this.battery,
       temperature: temperature ?? this.temperature,
       speed: speed ?? this.speed,
-      lastUpdate: lastUpdate ?? this.lastUpdate,
+      lastUpdate: updatedLastUpdate,
       image: image ?? this.image,
       isPinned: isPinned ?? this.isPinned,
-      displayDate: formatDate(lastUpdate ?? this.lastUpdate),
+      displayDate:
+          displayDate ??
+          (updatedLastUpdate != null ? formatDate(updatedLastUpdate) : ""),
     );
   }
 
   factory TrackerInfo.fromJson(Map<String, dynamic> json) {
-    final lastData = json['last_data'] ?? {};
-    final tracker = json['tracker'] ?? {};
+    final lastData = (json['last_data'] as Map<String, dynamic>?) ?? {};
+    final tracker = (json['tracker'] as Map<String, dynamic>?) ?? {};
 
-    final lat = (lastData['lat'] ?? 0).toDouble();
-    final lon = (lastData['lon'] ?? 0).toDouble();
+    final lat = ((lastData['lat'] ?? 0) as num).toDouble();
+    final lon = ((lastData['lon'] ?? 0) as num).toDouble();
 
     final lastUpdate = json['lastReceiveDate'] != null
-        ? DateTime.parse(json['lastReceiveDate']).toLocal()
-        : DateTime.now();
+        ? DateTime.parse(json['lastReceiveDate'].toString()).toLocal()
+        : null;
 
     return TrackerInfo(
       id: json['_id']?.toString() ?? '',
@@ -80,11 +85,9 @@ class TrackerInfo {
       temperature: ((lastData['temp'] ?? 0) as num).toInt(),
       speed: ((lastData['vel'] ?? 0) as num).toInt(),
       lastUpdate: lastUpdate,
-
       isPinned: json['isPinned'] ?? false,
-      image: json['imageUrl'] ?? "",
-
-      displayDate: formatDate(lastUpdate),
+      image: json['imageUrl']?.toString() ?? "",
+      displayDate: lastUpdate != null ? formatDate(lastUpdate) : "",
     );
   }
 }

@@ -258,7 +258,7 @@ class TrackerMarkerLayer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trackers = ref.watch(trackersProvider);
+    final trackers = ref.watch(mapTrackersProvider);
 
     return MarkerLayer(
       markers: trackers.map((t) {
