@@ -6,6 +6,7 @@ import colors from 'cli-color'
 import cors from "cors";
 import { initMqtt } from './mqtt/index.js'
 import path from 'path'
+import compression from "compression";
 
 import authRoutes from "./routes/auth.js";
 import mapRoutes from './routes/map/index.js'
@@ -17,7 +18,12 @@ import successFn from "./middleware/successFn.js";
 dotenv.config();
 
 const app = express();
+
+app.use(compression({
+  threshold: 1024
+}));
 app.use(express.json());
+
 app.use(cors({
   origin: [
     "http://192.168.161.68",
@@ -31,6 +37,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/map", mapRoutes);
+
 // app.use(admin.options.rootPath, adminRouter);
 
 app.use(errorHandler)

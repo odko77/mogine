@@ -14,7 +14,10 @@ class Http {
             // baseUrl: 'http://192.168.161.68:5000/api',
             connectTimeout: const Duration(seconds: 15),
             receiveTimeout: const Duration(seconds: 15),
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept-Encoding': 'gzip',
+            },
           ),
         )
         ..interceptors.add(
