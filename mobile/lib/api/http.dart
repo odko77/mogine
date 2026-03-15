@@ -137,6 +137,36 @@ class Http {
     }
   }
 
+  /// ---------------- DELETE ----------------
+  static Future<ApiResponse<T>> delete<T>(
+    String path, {
+    Map<String, dynamic>? body,
+    Map<String, dynamic>? query,
+    T Function(dynamic raw)? parser,
+    Options? options,
+  }) async {
+    try {
+      final res = await dio.delete(
+        path,
+        data: body,
+        queryParameters: query,
+        options: options,
+      );
+
+      return ApiResponse<T>.fromJson(res.data, parser: parser);
+    } on DioException catch (e) {
+      final data = e.response?.data;
+
+      if (data is Map) {
+        return ApiResponse<T>.fromJson(data, parser: parser);
+      }
+
+      return ApiResponse<T>(success: false, error: _dioToText(e));
+    } catch (_) {
+      return ApiResponse<T>(success: false, error: 'Түр алдаа гарлаа');
+    }
+  }
+
   /// ---------------- Error handler ----------------
   static String _dioToText(DioException e) {
     print("Dio error $e");

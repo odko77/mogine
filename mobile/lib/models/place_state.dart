@@ -16,6 +16,7 @@ class PlacePoint {
   });
 
   factory PlacePoint.fromJson(Map<String, dynamic> json) {
+    print("json $json");
     return PlacePoint(
       id: json['_id']?.toString(),
       name: json['name'] ?? '',

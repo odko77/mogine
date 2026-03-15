@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobile/models/place_state.dart';
 import 'package:mobile/models/tracker_state.dart';
 import 'package:mobile/providers/location_notifier.dart';
 import 'package:mobile/providers/point_provider.dart';
@@ -84,16 +85,17 @@ class _MapScreenState extends ConsumerState<MapScreen>
   void _onMapTap(LatLng latLng) {
     setState(() => _pinTracker = latLng);
     _moveTo(latLng);
-    _showPinTrackerSheet(latLng);
+    _showPinTrackerSheet(latLng: latLng);
   }
 
-  void _showPinTrackerSheet(LatLng latLng) {
+  void _showPinTrackerSheet({required LatLng latLng, PlacePoint? place}) {
+    print("show bototm ${place?.name}");
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       barrierColor: Colors.transparent,
-      builder: (_) => PinTrackerSheet(latLng: latLng),
+      builder: (_) => PinTrackerSheet(latLng: latLng, place: place),
     ).then((_) {
       if (mounted) {
         setState(() => _pinTracker = null);
@@ -181,7 +183,10 @@ class _MapScreenState extends ConsumerState<MapScreen>
               if (_pinTracker != null)
                 MarkerLayer(markers: [_pinTrackerMarker(_pinTracker!)]),
 
-              const MapPointsLayer(),
+              MapPointsLayer(
+                onTap: (latLng, [place]) =>
+                    _showPinTrackerSheet(latLng: latLng, place: place),
+              ),
 
               const UserLocation(),
 
@@ -281,7 +286,9 @@ class TrackerMarkerLayer extends ConsumerWidget {
 }
 
 class MapPointsLayer extends ConsumerWidget {
-  const MapPointsLayer({super.key});
+  final void Function(LatLng latLng, [PlacePoint? place]) onTap;
+
+  const MapPointsLayer({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -302,49 +309,60 @@ class MapPointsLayer extends ConsumerWidget {
             child: SizedBox(
               width: pinSize,
               height: pinSize,
-              child: Stack(
-                alignment: Alignment.center,
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    width: pinSize,
-                    height: pinSize,
-                    alignment: Alignment.bottomCenter,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: MyAppTheme.primaryColor,
-                        width: 2,
-                      ),
-                    ),
-                  ),
-
-                  Positioned(
-                    top: -0,
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: SizeConfig.dw(120)),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: SizeConfig.dw(10),
-                        vertical: SizeConfig.dh(5),
-                      ),
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () {
+                  final latLng = t.point;
+                  onTap(latLng, t); // place null
+                },
+                child: Stack(
+                  alignment: Alignment.center,
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      width: pinSize,
+                      height: pinSize,
+                      alignment: Alignment.bottomCenter,
                       decoration: BoxDecoration(
-                        color: MyAppTheme.primaryColor.withOpacity(.9),
-                        borderRadius: BorderRadius.circular(SizeConfig.dw(12)),
-                      ),
-                      child: Text(
-                        t.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: MyAppTheme.textColor,
-                          fontSize: SizeConfig.sp(11),
-                          fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: MyAppTheme.primaryColor,
+                          width: 2,
                         ),
                       ),
                     ),
-                  ),
-                ],
+
+                    Positioned(
+                      top: -0,
+                      child: Container(
+                        constraints: BoxConstraints(
+                          maxWidth: SizeConfig.dw(120),
+                        ),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: SizeConfig.dw(10),
+                          vertical: SizeConfig.dh(5),
+                        ),
+                        decoration: BoxDecoration(
+                          color: MyAppTheme.primaryColor.withOpacity(.9),
+                          borderRadius: BorderRadius.circular(
+                            SizeConfig.dw(12),
+                          ),
+                        ),
+                        child: Text(
+                          t.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: MyAppTheme.textColor,
+                            fontSize: SizeConfig.sp(11),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

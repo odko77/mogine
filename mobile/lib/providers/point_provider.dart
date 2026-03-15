@@ -16,7 +16,6 @@ class PlacePointNotifier extends Notifier<List<PlacePoint>> {
       _loading = true;
 
       final places = await PlaceApi.getPlaces();
-      print("places ${places[1].name}");
       state = places;
     } catch (e) {
       print('fetch places error: $e');
@@ -35,7 +34,14 @@ class PlacePointNotifier extends Notifier<List<PlacePoint>> {
     state = [...state, place];
   }
 
-  void remove(String id) => state = state.where((p) => p.id != id).toList();
+  void remove(String id) async {
+    if (id == "") {
+      return;
+    }
+
+    await PlaceApi.deletePlace(id);
+    state = state.where((p) => p.id != id).toList();
+  }
 
   void clear() => state = [];
 }

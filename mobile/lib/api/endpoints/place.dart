@@ -16,9 +16,18 @@ class PlaceApi {
   }
 
   static Future<List<PlacePoint>> getPlaces() async {
-    final res = await Http.dio.get('/v1/map/point-name');
+    final res = await Http.get('/v1/map/point-name');
 
-    final List data = res.data['data'] ?? [];
+    final List data = res.data ?? [];
     return data.map((e) => PlacePoint.fromJson(e)).toList();
+  }
+
+  static Future<ApiResponse<Map<String, dynamic>>> deletePlace(
+    String id,
+  ) async {
+    return Http.delete<Map<String, dynamic>>(
+      '/v1/map/point-name/$id',
+      parser: (raw) => (raw as Map).cast<String, dynamic>(),
+    );
   }
 }

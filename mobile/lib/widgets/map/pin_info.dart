@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobile/models/place_state.dart';
 import 'package:mobile/providers/point_provider.dart';
 import 'package:mobile/utils/size_config.dart';
 import 'package:mobile/utils/theme.dart';
 
 class PinTrackerSheet extends ConsumerStatefulWidget {
   final LatLng latLng;
+  final PlacePoint? place;
 
-  const PinTrackerSheet({super.key, required this.latLng});
+  const PinTrackerSheet({super.key, required this.latLng, this.place});
 
   @override
   ConsumerState<PinTrackerSheet> createState() => _PinTrackerSheetState();
@@ -19,6 +21,12 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
   final _formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    super.initState();
+    _controller.text = widget.place?.name ?? '';
+  }
+
+  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
@@ -26,9 +34,23 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
+
+    if (widget.place != null) {
+      // Хэрэв update method байхгүй бол хуучныг нь устгаад шинээр add хийж болно
+      ref.read(placePointsProvider.notifier).remove(widget.place!.id ?? "");
+    }
+
     ref
         .read(placePointsProvider.notifier)
         .add(widget.latLng, _controller.text.trim());
+
+    Navigator.pop(context);
+  }
+
+  void _delete() {
+    if (widget.place == null) return;
+
+    ref.read(placePointsProvider.notifier).remove(widget.place!.id ?? "");
     Navigator.pop(context);
   }
 
@@ -39,7 +61,6 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
     return Padding(
       padding: EdgeInsets.only(bottom: bottom),
       child: Container(
-        // margin: EdgeInsets.all(SizeConfig.dw(12)),
         padding: EdgeInsets.all(SizeConfig.dw(12)),
         decoration: BoxDecoration(
           color: MyAppTheme.bgColor,
@@ -57,7 +78,6 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Handle
               Container(
                 width: SizeConfig.dw(40),
                 height: SizeConfig.dh(4),
@@ -68,7 +88,6 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
                 ),
               ),
 
-              // ── Гарчиг мөр ──────────────────────────────────────────────
               Row(
                 children: [
                   Container(
@@ -84,24 +103,20 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
                       size: SizeConfig.dw(28),
                     ),
                   ),
-
                   SizedBox(width: SizeConfig.dw(10)),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Шинэ цэг',
+                          widget.place != null ? 'Цэг засах' : 'Шинэ цэг',
                           style: TextStyle(
                             color: MyAppTheme.textColor,
                             fontWeight: FontWeight.w800,
                             fontSize: SizeConfig.sp(15),
                           ),
                         ),
-
                         SizedBox(height: SizeConfig.dh(4)),
-
                         Row(
                           children: [
                             Icon(
@@ -119,9 +134,7 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
                             ),
                           ],
                         ),
-
                         SizedBox(height: SizeConfig.dh(2)),
-
                         Row(
                           children: [
                             Icon(
@@ -147,7 +160,6 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
 
               SizedBox(height: SizeConfig.dh(16)),
 
-              // ── Нэр оруулах ─────────────────────────────────────────────
               TextFormField(
                 controller: _controller,
                 autofocus: false,
@@ -201,10 +213,8 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
 
               SizedBox(height: SizeConfig.dh(12)),
 
-              // ── Товчнууд ─────────────────────────────────────────────────
               Row(
                 children: [
-                  // Хаах
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.pop(context),
@@ -226,9 +236,34 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
                     ),
                   ),
 
+                  if (widget.place != null) ...[
+                    SizedBox(width: SizeConfig.dw(10)),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _delete,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.redAccent,
+                          side: const BorderSide(color: Colors.redAccent),
+                          padding: EdgeInsets.symmetric(
+                            vertical: SizeConfig.dh(13),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              SizeConfig.dw(12),
+                            ),
+                          ),
+                        ),
+                        icon: Icon(
+                          Icons.delete_outline,
+                          size: SizeConfig.dw(18),
+                        ),
+                        label: const Text('Устгах'),
+                      ),
+                    ),
+                  ],
+
                   SizedBox(width: SizeConfig.dw(10)),
 
-                  // Хадгалах
                   Expanded(
                     flex: 2,
                     child: FilledButton.icon(
@@ -246,7 +281,9 @@ class _PinTrackerSheetState extends ConsumerState<PinTrackerSheet> {
                         ),
                       ),
                       icon: Icon(Icons.save_outlined, size: SizeConfig.dw(18)),
-                      label: const Text('Хадгалах'),
+                      label: Text(
+                        widget.place != null ? 'Шинэчлэх' : 'Хадгалах',
+                      ),
                     ),
                   ),
                 ],
